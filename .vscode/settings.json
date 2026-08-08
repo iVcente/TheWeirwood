@@ -1,0 +1,9 @@
+{
+  "foam.edit.linkReferenceDefinitions": "off",
+  "markdown.copyFiles.destination": {
+    "/content/**/*.md": "/content/attachments/"
+  },
+  "markdown.updateLinksOnFileMove.enabled": "always",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
+}
