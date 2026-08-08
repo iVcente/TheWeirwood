@@ -7,7 +7,7 @@ configuration:
   analytics:
     provider: null
   locale: en-US
-  baseUrl: ivcente.github.io/TheWeirwood
+  baseUrl: theweirwood.boo
   ignorePatterns:
     - private
     - templates
@@ -138,7 +138,7 @@ plugins:
   - source: "@quartz-community/og-image"
     enabled: true
   - source: "@quartz-community/cname"
-    enabled: false
+    enabled: true
   - source: "@quartz-community/canvas-page"
     enabled: true
   - source: "@quartz-community/content-page"
