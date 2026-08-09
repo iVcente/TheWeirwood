@@ -42,8 +42,7 @@ aliases: ["..."]       # alternate names → searchable and linkable
 type: character        # character | event | house | place | concept
 house: "..."           # optional; omit if N/A
 tags: ["..."]          # cross-cutting views
-era: "..."             # in-world period
-date: ""               # events only, e.g. "48 AC"
+era: "..."             # in-world period; use this for ASOIAF dates too (e.g. "48 AC")
 book: "Fire & Blood"   # source work
 status: stub           # stub | draft | complete
 ---
