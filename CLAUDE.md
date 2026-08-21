@@ -80,6 +80,12 @@ arrays) describe files that do not exist here. Translate before following them.
 Each of these fails silently or misleadingly. They are mechanical facts about this
 Quartz version, independent of whatever visual design is in place.
 
+- **`@quartz-community/note-properties` is the frontmatter parser**, not just the
+  properties table its name suggests — it is categorised `["transformer", "component"]`
+  and runs at `order: 5`. Disabling it strips frontmatter from every page: titles become
+  "Untitled" and anything reading `fileData.frontmatter` renders nothing, with no warning.
+  To hide the properties table, keep the plugin enabled and set
+  `options.hidePropertiesView: true`.
 - **Fonts are declared twice.** `configuration.theme.typography` and the
   `@quartz-community/quartz-fonts` plugin each emit a `--bodyFont`/`--headerFont` block,
   and the plugin's loads last. It does _not_ read the theme block — it falls back to
@@ -105,6 +111,20 @@ a layout. Local plugins live in `plugins/` and are referenced by path
 them, so there is no build step and no toolchain: write plain ESM (preact `h()`), declare
 a `quartz` manifest in `package.json`, and export components from a `./components`
 subpath.
+
+A component composed _inside_ another component still has its CSS and scripts emitted —
+`componentResources` collects from the registry, not from the layout. That is how
+`weirwood-article` relocates Quartz's real interactive graph out of the sidebar and into
+the page body. Such a plugin must stay `enabled: true` with no `layout:` block; disabling
+it to "remove the sidebar widget" would break the component that borrows it.
+
+This site's own plugins:
+
+- `plugins/weirwood-landing` — the hero, the greensight CTA, and a count-box row whose
+  cells are **discovered** from the content tree (every top-level folder holding at least
+  one article becomes a cell, labelled and counted automatically).
+- `plugins/weirwood-article` — frontmatter-driven metadata boxes and the "roots of this
+  page" band (local graph + backlinks) that sits above the prose.
 
 ### Build & deploy
 

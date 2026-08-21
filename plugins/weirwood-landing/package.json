@@ -1,0 +1,65 @@
+{
+  "name": "weirwood-landing",
+  "version": "2.0.0",
+  "description": "The Weirwood landing page — canopy/roots hero, greensight CTA, and folder count boxes.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    },
+    "./components": {
+      "import": "./components/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./index.js",
+  "sideEffects": false,
+  "peerDependencies": {
+    "preact": "^10.0.0"
+  },
+  "quartz": {
+    "name": "weirwood-landing",
+    "displayName": "Weirwood Landing",
+    "description": "Canopy + roots hero with the greensight CTA and a dynamic count-box row.",
+    "category": [
+      "pageType",
+      "component"
+    ],
+    "version": "2.0.0",
+    "quartzVersion": ">=5.0.0",
+    "dependencies": [],
+    "defaultOrder": 50,
+    "defaultEnabled": true,
+    "defaultOptions": {},
+    "components": {
+      "WeirwoodLanding": {
+        "displayName": "Weirwood Landing",
+        "description": "Renders the landing page; returns nothing on every other page.",
+        "defaultPosition": "beforeBody",
+        "defaultPriority": 1
+      }
+    },
+    "optionSchema": {
+      "kicker": {
+        "type": "string"
+      },
+      "tagline": {
+        "type": "string"
+      },
+      "ctaLabel": {
+        "type": "string"
+      },
+      "ctaLink": {
+        "type": "string"
+      },
+      "order": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

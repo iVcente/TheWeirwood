@@ -1,0 +1,62 @@
+{
+  "name": "weirwood-article",
+  "version": "1.0.0",
+  "description": "Frontmatter metadata boxes and the \"roots of this page\" band (Greensight + backlinks).",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    },
+    "./components": {
+      "import": "./components/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./index.js",
+  "sideEffects": false,
+  "peerDependencies": {
+    "preact": "^10.0.0"
+  },
+  "quartz": {
+    "name": "weirwood-article",
+    "displayName": "Weirwood Article",
+    "description": "Metadata boxes and the connections band, both above the prose.",
+    "category": "component",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.0.0",
+    "dependencies": [],
+    "defaultOrder": 50,
+    "defaultEnabled": true,
+    "defaultOptions": {},
+    "components": {
+      "WeirwoodArticle": {
+        "displayName": "Weirwood Article",
+        "description": "Renders the metadata boxes and roots band on article pages.",
+        "defaultPosition": "beforeBody",
+        "defaultPriority": 30
+      }
+    },
+    "optionSchema": {
+      "fields": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "accentFields": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "rootsHeading": {
+        "type": "string"
+      },
+      "graphHeading": {
+        "type": "string"
+      }
+    }
+  }
+}

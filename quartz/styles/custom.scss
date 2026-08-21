@@ -1,3 +1,269 @@
 @use "./variables.scss" as *;
 
-// put your custom CSS here!
+// ---------------------------------------------------------------------------
+// The Weirwood — a maester's chronicle.
+//
+// The nine palette tokens and the three fonts live in quartz.config.yaml. This
+// file carries what the theme block cannot express: the single-column
+// broadsheet, the surface layering, the reading rhythm, and the "mono as UI
+// chrome" voice that makes the site read as record-keeping rather than a blog.
+//
+// Dark is the only mode — the `darkmode` plugin is disabled, so nothing ever
+// sets :root[saved-theme="dark"] and the lightMode palette always applies.
+// Do not add a light palette here.
+// ---------------------------------------------------------------------------
+
+:root {
+  // Surfaces below `--light`, which the nine-token palette has no room for.
+  --ww-panel: #120e09; // bands, cards, metadata boxes
+  --ww-inset: #100c08; // code blocks
+  --ww-graph-bg: #0f0b07; // the deepest inset — the greensight well
+  --ww-muted: #9a8b73; // taglines, subtitles, captions
+  --ww-edge: #3a2f24; // graph edges, quiet borders
+  --ww-divider: #221c15; // hairline list dividers
+
+  // Supplied by the darkmode plugin in stock Quartz; that plugin is off here,
+  // so without this, form controls and scrollbars would render light.
+  color-scheme: dark;
+}
+
+// --- reading rhythm --------------------------------------------------------
+
+body {
+  font-size: 18px;
+  line-height: 1.72;
+}
+
+::selection {
+  background: #5a2a20;
+  color: #f3e8d2;
+}
+
+// --- the broadsheet --------------------------------------------------------
+// Every page runs in the full-width frame (layout.byPageType in
+// quartz.config.yaml), so the centre column is the whole page. Hold the measure
+// here instead of in a sidebar grid.
+
+.page > #quartz-body .center {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.page > #quartz-body .center > article {
+  padding: 28px 0 36px;
+}
+
+// The header block above the prose is centred; the prose itself is not.
+.page-header {
+  text-align: center;
+  padding-top: 12px;
+}
+
+// --- the top bar -----------------------------------------------------------
+// With no sidebars this slim strip is the only persistent navigation: the site
+// title returns home and search stays reachable from every page.
+
+.page-header > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 14px 0 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--lightgray);
+  text-align: left;
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--headerFont);
+  font-size: 15px;
+
+  a {
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dark);
+    font-weight: 400;
+    background-color: transparent;
+
+    &:hover {
+      color: var(--tertiary);
+    }
+  }
+}
+
+.search > .search-button {
+  background-color: transparent;
+  border: 1px solid var(--ww-edge);
+  border-radius: 4px;
+  padding: 7px 12px;
+
+  & > p {
+    font-family: var(--codeFont);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+
+  &:hover {
+    border-color: var(--gray);
+    background-color: var(--highlight);
+  }
+}
+
+// --- three voices of type --------------------------------------------------
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: 0.03em;
+}
+
+.article-title {
+  font-family: var(--headerFont);
+  font-weight: 600;
+  font-size: 38px;
+  line-height: 1.06;
+  letter-spacing: 0.02em;
+  color: var(--dark);
+  margin: 0;
+}
+
+article > h2 {
+  font-family: var(--headerFont);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: 0.03em;
+  color: #e0d3b8;
+  margin: 24px 0 10px;
+}
+
+article > h3,
+article > h4 {
+  font-weight: 500;
+  color: #e0d3b8;
+}
+
+// Mono is the ledger voice: it carries chrome and metadata, not just code.
+.breadcrumb-container,
+footer {
+  font-family: var(--codeFont);
+}
+
+.breadcrumb-container {
+  justify-content: center;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 16px;
+
+  a {
+    color: var(--gray);
+    font-weight: 400;
+    background-color: transparent;
+
+    &:hover {
+      color: var(--tertiary);
+    }
+  }
+
+  .breadcrumb-element:last-of-type a {
+    color: #8a7b67;
+  }
+}
+
+footer {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--gray);
+  border-top: 1px solid var(--lightgray);
+}
+
+// --- prose -----------------------------------------------------------------
+
+article a.internal {
+  color: var(--tertiary);
+
+  &:hover {
+    color: #e0715f;
+  }
+}
+
+// House words and other lead-ins: an italic line on its own after the title.
+article > p:first-of-type > em:only-child {
+  font-family: var(--bodyFont);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ww-muted);
+}
+
+// The entry opens with a carved initial. Articles only — the landing's prose
+// sits under the hero, where a drop cap would fight the wordmark.
+body:not([data-slug="index"]) article > p:first-of-type::first-letter {
+  font-family: var(--headerFont);
+  font-size: 56px;
+  line-height: 0.78;
+  color: var(--secondary);
+  float: left;
+  padding: 4px 12px 0 0;
+}
+
+blockquote {
+  font-style: italic;
+  color: #b9ac95;
+  margin: 20px 0;
+  padding: 4px 20px;
+}
+
+// The one warm gold in the palette, reserved for ==marks== so highlights never
+// compete with links.
+.text-highlight {
+  color: #241813;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+figure[data-rehype-pretty-code-figure] pre,
+pre:has(> code) {
+  background-color: var(--ww-inset);
+  border: 1px solid var(--lightgray);
+  border-radius: 5px;
+  padding: 16px 18px;
+}
+
+code {
+  font-size: 0.85em;
+}
+
+// The roots band spans the full page while the prose keeps its measure; padding
+// is re-added inside so its contents stay aligned with the column.
+.ww-roots {
+  margin-inline: -24px;
+  padding-inline: 24px;
+}
+
+// --- landing ---------------------------------------------------------------
+// Quartz's title, breadcrumb and table of contents are dropped from the landing
+// in quartz.config.yaml (layout.byPageType.landing), so the hero is the first
+// thing on the page. The front door takes a wider measure than an article.
+
+body[data-slug="index"] {
+  .center {
+    max-width: 1100px;
+    padding: 0;
+  }
+
+  .page-header > header {
+    padding-inline: 24px;
+  }
+
+  .center > article {
+    padding: 0 24px 36px;
+  }
+}
