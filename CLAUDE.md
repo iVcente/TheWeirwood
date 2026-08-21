@@ -12,7 +12,7 @@ git push                   # triggers the GitHub Action that builds + deploys
 
 ## Architecture
 
-**The Weirwood** — a personal, story-focused *A Song of Ice and Fire* / *Fire & Blood*
+**The Weirwood** — a personal, story-focused _A Song of Ice and Fire_ / _Fire & Blood_
 lore archive, built as a Quartz static site deployed to GitHub Pages. No database; Markdown files are the source
 of truth and frontmatter is the metadata store.
 
@@ -38,13 +38,13 @@ content/
 ```yaml
 ---
 title: "..."
-aliases: ["..."]       # alternate names → searchable and linkable
-type: character        # character | event | house | place | concept
-house: "..."           # optional; omit if N/A
-tags: ["..."]          # cross-cutting views
-era: "..."             # in-world period; use this for ASOIAF dates too (e.g. "48 AC")
-book: "Fire & Blood"   # source work
-status: stub           # stub | draft | complete
+aliases: ["..."] # alternate names → searchable and linkable
+type: character # character | event | house | place | concept
+house: "..." # optional; omit if N/A
+tags: ["..."] # cross-cutting views
+era: "..." # in-world period; use this for ASOIAF dates too (e.g. "48 AC")
+book: "Fire & Blood" # source work
+status: stub # stub | draft | complete
 ---
 ```
 
@@ -65,15 +65,53 @@ Quartz's, so the local graph/backlinks and the published site stay in sync.
 
 ### Theming
 
-- Colors, fonts, site title, `baseUrl`: `quartz.config.ts`.
-- Component layout (graph, backlinks, search, explorer): `quartz.layout.ts`.
-- Custom styles: `quartz/styles/custom.scss`.
+This is **Quartz v5**, configured in YAML. Guides and handoffs written for Quartz v4
+(`quartz.config.ts`, `quartz.layout.ts`, `Component.Darkmode()`, `quartz.layout` component
+arrays) describe files that do not exist here. Translate before following them.
+
+- Colors, fonts, site title, `baseUrl`, and every plugin: `quartz.config.yaml`.
+- Component placement: each plugin's own `layout:` block (`position`, `priority`,
+  `condition`), plus the `layout.byPageType` section at the end of that file.
+- Custom styles: `quartz/styles/custom.scss`. Leave `variables.scss` and `base.scss`
+  alone — they are core files that conflict on upgrade.
+
+### Quartz v5 gotchas
+
+Each of these fails silently or misleadingly. They are mechanical facts about this
+Quartz version, independent of whatever visual design is in place.
+
+- **Fonts are declared twice.** `configuration.theme.typography` and the
+  `@quartz-community/quartz-fonts` plugin each emit a `--bodyFont`/`--headerFont` block,
+  and the plugin's loads last. It does _not_ read the theme block — it falls back to
+  stock Quartz fonts. Set fonts in **both** places or the change does nothing.
+- **`frame` is a layout property, not frontmatter.** Putting `frame:` in a `.md` file has
+  no effect. A page needs its own frame (e.g. `full-width`) via a page type registered by
+  a plugin, or a `byPageType` override — which applies to every page of that type.
+- **`exclude:` in `byPageType` matches the plugin's full `source` string**, so
+  `- reader-mode` matches nothing; it must be `- "@quartz-community/reader-mode"`. Some
+  entries in the shipped config get this wrong and are silently inert.
+- **Disabling `@quartz-community/darkmode` means `:root[saved-theme="dark"]` is never
+  set**, so the `lightMode` palette becomes the only one that ever applies, whatever the
+  visitor's OS preference. That plugin also supplies `color-scheme`.
+- **`textHighlight` is painted opaque.** Stock tokens carry their own 8-digit alpha; a
+  v4-era value that assumed ~50% alpha will render muddy.
+
+### Custom components
+
+Components must come from a plugin — Quartz v5's component registry is populated only by
+the plugin loader, so a `.tsx` file dropped into `quartz/components/` cannot be placed in
+a layout. Local plugins live in `plugins/` and are referenced by path
+(`source: ./plugins/<name>`). Quartz **symlinks** local plugins rather than building
+them, so there is no build step and no toolchain: write plain ESM (preact `h()`), declare
+a `quartz` manifest in `package.json`, and export components from a `./components`
+subpath.
 
 ### Build & deploy
 
 `.github/workflows/deploy.yml` runs Quartz on push to `main` and publishes to GitHub
 Pages (repo Settings → Pages → Source: GitHub Actions). Custom domain is set in
-Settings → Pages; a `CNAME` file lives in `quartz/static/` if publishing a custom domain.
+Settings → Pages; the `CNAME` file lives at the repo root and the workflow copies it into
+the build output.
 
 ## Conventions
 
