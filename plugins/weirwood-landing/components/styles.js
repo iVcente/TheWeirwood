@@ -11,53 +11,45 @@ export const landingStyles = `
   overflow: hidden;
   padding: 70px 48px 56px;
   text-align: center;
+  /* A column so the hero can be told to absorb leftover height and keep its
+     contents optically centred; see the landing block in custom.scss. */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background-color: var(--light);
   /* Heartglow first so it sits above the weave: red weirwood leaves lighting
-     the top of the page, over a barely-there warm pinstripe. */
+     the top of the page, over a barely-there warm pinstripe. The ellipse is
+     deliberately wider and taller than the wordmark so the glow reaches the
+     outer branch tips rather than pooling around the trunk. */
   background-image:
     radial-gradient(
-      90% 85% at 50% 26%,
-      rgba(178, 58, 46, 0.16) 0%,
-      rgba(178, 58, 46, 0.06) 42%,
-      transparent 74%
+      150% 115% at 50% 20%,
+      rgba(178, 58, 46, 0.2) 0%,
+      rgba(178, 58, 46, 0.07) 46%,
+      transparent 80%
     ),
     repeating-linear-gradient(135deg, rgba(255, 220, 180, 0.02) 0 2px, transparent 2px 11px);
 }
 
-.ww-tree-host {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
+/* The drawn heart tree, cropped off the top edge so the branches run out of
+   frame and the trunk lands behind the wordmark. The drop-shadow is what makes
+   it glow into the heartglow instead of sitting flatly on top of it. */
 .ww-tree {
-  width: 100%;
-  height: 100%;
-  opacity: 0.16;
-}
-
-.ww-tree-limbs {
-  stroke: var(--secondary);
-  stroke-width: 2;
-  stroke-linecap: round;
-  fill: none;
-}
-
-.ww-tree-catkins {
-  fill: var(--secondary);
+  position: absolute;
+  left: 50%;
+  top: -46px;
+  transform: translateX(-50%);
+  width: min(560px, 82vw);
+  height: auto;
+  opacity: 0.3;
+  filter: drop-shadow(0 0 34px rgba(178, 58, 46, 0.5));
+  pointer-events: none;
+  user-select: none;
 }
 
 .ww-hero-inner {
   position: relative;
-}
-
-.ww-kicker {
-  font-family: var(--codeFont);
-  font-size: 10px;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: var(--gray);
-  margin-bottom: 26px;
+  padding-top: 36px;
 }
 
 .ww-wordmark {
@@ -70,6 +62,8 @@ export const landingStyles = `
   text-transform: uppercase;
   margin: 0;
   border: none;
+  /* The tree sits behind the text now, so the wordmark needs its own ground. */
+  text-shadow: 0 2px 24px rgba(12, 9, 6, 0.85);
 }
 
 .ww-rule {
@@ -90,11 +84,21 @@ export const landingStyles = `
   text-wrap: pretty;
 }
 
+/* Both CTAs are filled red and carry equal weight — there is no secondary
+   variant. */
+.ww-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
 .ww-cta {
   display: inline-block;
   font-family: var(--codeFont);
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: #f3e8d2;
   background: var(--secondary);
   border: 1px solid var(--secondary);

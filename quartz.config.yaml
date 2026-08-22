@@ -244,9 +244,7 @@ plugins:
   - source: "@quartz-community/footer"
     enabled: true
     options:
-      links:
-        danzmann.dev: https://danzmann.dev
-        Built with Quartz: https://quartz.jzhao.xyz/
+      links: {}
     layout:
       position: footer
       priority: 50
@@ -324,6 +322,7 @@ layout:
         - "@quartz-community/article-title"
         - "@quartz-community/breadcrumbs"
         - "@quartz-community/table-of-contents"
+        - "@quartz-community/page-title"
         - ./plugins/weirwood-article
       positions:
         left: []

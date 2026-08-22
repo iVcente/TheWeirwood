@@ -44,14 +44,25 @@ body {
 // quartz.config.yaml), so the centre column is the whole page. Hold the measure
 // here instead of in a sidebar grid.
 
-.page > #quartz-body .center {
+// base.scss pins the full-width frame's column to `max-width: 100%` AND
+// `min-width: 100%` — the min-width is what actually forces the issue, so both
+// have to be undone or the measure below is silently ignored.
+.page[data-frame="full-width"] > #quartz-body .center.full-width {
   max-width: 780px;
+  min-width: 0;
   margin: 0 auto;
   padding: 0 24px;
 }
 
 .page > #quartz-body .center > article {
   padding: 28px 0 36px;
+}
+
+// base.scss puts 6rem of margin above .page-header. In the three-column layout
+// that cleared the sidebars; here it reads as a tall empty band before anything
+// starts. The top bar and the hero both belong near the top edge.
+.page > #quartz-body .page-header {
+  margin-top: 0;
 }
 
 // The header block above the prose is centred; the prose itself is not.
@@ -93,23 +104,51 @@ body {
   }
 }
 
+// Note: do NOT style .preview-container's scrollbar. Declaring
+// ::-webkit-scrollbar (or scrollbar-width) opts Chrome out of overlay
+// scrollbars and gives it a classic, permanently visible one. Leaving it alone
+// keeps the OS behaviour, which already hides the bar until it is used — the
+// script in weirwood-article avoids scrolling the preview so it never flashes.
+
+// Icon only. The button keeps its aria-label, so the word is still announced
+// to screen readers even though it is not drawn.
 .search > .search-button {
   background-color: transparent;
   border: 1px solid var(--ww-edge);
   border-radius: 4px;
-  padding: 7px 12px;
+  height: auto;
+  padding: 7px;
 
   & > p {
-    font-family: var(--codeFont);
-    font-size: 10px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--gray);
+    display: none;
+  }
+
+  & > svg {
+    width: 16px;
+    min-width: 16px;
+    margin: 0;
   }
 
   &:hover {
     border-color: var(--gray);
     background-color: var(--highlight);
+
+    .search-path {
+      stroke: var(--tertiary);
+    }
+  }
+
+  // Closing the search modal returns focus to this button, which in Chrome
+  // draws its blue focus ring over the artwork. Drop the ring, but mark focus
+  // in the palette instead of removing the cue altogether — the button still
+  // has to be findable by keyboard.
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--tertiary);
   }
 }
 
@@ -178,11 +217,26 @@ footer {
   }
 }
 
-footer {
+// The id beats the footer plugin's own `footer {}` rules, which are emitted in a
+// component stylesheet that loads after this file — notably its 4rem bottom
+// margin, which left the bar floating well above the foot of the page.
+#quartz-body > footer {
+  margin: 0;
+  padding: 12px 24px;
+  opacity: 1;
   font-size: 10px;
   letter-spacing: 0.14em;
   color: var(--gray);
   border-top: 1px solid var(--lightgray);
+
+  & > p {
+    margin: 0;
+  }
+
+  // The links list is configured empty; without this it still reserves space.
+  & > ul:empty {
+    display: none;
+  }
 }
 
 // --- prose -----------------------------------------------------------------
@@ -253,17 +307,100 @@ code {
 // in quartz.config.yaml (layout.byPageType.landing), so the hero is the first
 // thing on the page. The front door takes a wider measure than an article.
 
+// The front door is a single screen: the hero absorbs whatever height is left
+// over so the count boxes come to rest just above the footer, and the footer
+// sits on the bottom edge instead of floating in the middle of an empty page.
+// This is scoped to the landing — articles scroll normally.
 body[data-slug="index"] {
-  .center {
-    max-width: 1100px;
-    padding: 0;
+  .page > #quartz-body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    grid-template-rows: 1fr auto auto;
+    // The grid carries a 5px gap, and the empty middle row means two of them
+    // land between the count boxes and the footer. Closing it lets the cell
+    // dividers run all the way down to the footer rule.
+    row-gap: 0;
   }
 
+  // The chain from the grid cell down to the hero, so `flex: 1` can reach it.
+  .center.full-width,
+  .page-header,
+  .page-header > .popover-hint,
+  .ww-landing {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .page-header,
+  .page-header > .popover-hint,
+  .ww-landing {
+    flex: 1;
+  }
+
+  .ww-landing {
+    margin-bottom: 0;
+  }
+
+  .ww-hero {
+    flex: 1;
+    justify-content: center;
+  }
+
+  // Empty, but its 1rem top margin would still show as a gap.
+  .page-footer:empty {
+    display: none;
+  }
+
+  // The hero and the count boxes run edge to edge; only the prose beneath them
+  // takes the reading measure (see the .center override below).
+  .page-header {
+    position: relative;
+    padding-top: 0;
+  }
+
+  // No bar across the front door: the artwork starts at the very top of the
+  // viewport. The header lifts out of the flow entirely so the search button is
+  // left resting in the corner, over the canopy.
   .page-header > header {
-    padding-inline: 24px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 3;
+    justify-content: flex-end;
+    padding: 16px 20px;
+    margin: 0;
+    border-bottom: none;
   }
 
-  .center > article {
-    padding: 0 24px 36px;
+  // The site title is dropped from this page type entirely (see
+  // layout.byPageType.landing) — you are already home, and the wordmark below
+  // says the same thing. The search button keeps its ordinary appearance.
+
+  // index.md carries only frontmatter, so this collapses to nothing and the
+  // count boxes are the last thing on the page. Vertical spacing is left to the
+  // prose's own margins, so adding text back here needs no change.
+  //
+  // The `.page > #quartz-body` prefix is load-bearing: the general article rule
+  // is qualified by an id, so a shorter selector here loses the cascade and its
+  // 28px/36px padding survives as a gap under the count boxes.
+  .page > #quartz-body .center > article {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px;
   }
+
+  // The frame draws a rule between the body and the page footer. With no body
+  // it would hang under the count boxes as a stray line.
+  .center > hr {
+    display: none;
+  }
+}
+
+// The landing's column is the full viewport; the measure is applied to its
+// prose instead (above).
+body[data-slug="index"] .page[data-frame="full-width"] > #quartz-body .center.full-width {
+  max-width: none;
+  min-width: 100%;
+  padding: 0;
 }

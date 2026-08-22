@@ -2,6 +2,7 @@ import { h } from "preact"
 import { resolveRelative, simplifySlug } from "@quartz-community/utils/path"
 import { Graph } from "@quartz-community/graph"
 import { articleStyles } from "./styles.js"
+import { previewTopScript } from "./script.js"
 
 const defaultOptions = {
   // Candidate frontmatter keys, in order. A box appears for each key the note
@@ -127,5 +128,6 @@ export const WeirwoodArticle = (userOpts) => {
   }
 
   Article.css = articleStyles
+  Article.afterDOMLoaded = previewTopScript
   return Article
 }

@@ -1,18 +1,18 @@
 import { h } from "preact"
 import { resolveRelative } from "@quartz-community/utils/path"
 import { Graph } from "@quartz-community/graph"
-import { weirwoodTreeSvg } from "./tree.js"
 import { landingStyles } from "./styles.js"
 import { greensightScript } from "./script.js"
 
 const defaultOptions = {
-  kicker: "A chronicle of ice & fire",
-  tagline:
-    "Eight thousand years of houses, wars, and prophecy — bound in one linked record. " +
-    "The trees remember.",
-  ctaLabel: "Open the greensight",
+  tagline: "The trees remember.",
+  ctaLabel: "Greensight",
   // "" opens Quartz's global-graph overlay. A slug here makes it a plain link.
   ctaLink: "",
+  worldLabel: "World",
+  // The section this opens. Hidden entirely when no such section exists, so the
+  // button can never point at a page that has not been written.
+  worldLink: "places",
   // Optional explicit ordering of the count boxes; anything not listed follows
   // alphabetically. Sections themselves are always discovered, never listed.
   order: [],
@@ -103,14 +103,20 @@ export const WeirwoodLanding = (userOpts) => {
     const wordmark = splitWordmark(cfg.pageTitle)
     const usesOverlay = !opts.ctaLink
 
+    // The landing only ever renders at the site root, so a page-relative path
+    // to the static asset is correct in both dev and production.
+    const hasWorld = sections.some((section) => section.segment === opts.worldLink)
+
     const hero = h("section", { class: "ww-hero" }, [
-      h("div", {
-        class: "ww-tree-host",
+      h("img", {
+        class: "ww-tree",
+        src: "./static/weirwood.png",
+        alt: "",
         "aria-hidden": "true",
-        dangerouslySetInnerHTML: { __html: weirwoodTreeSvg() },
+        loading: "eager",
+        decoding: "async",
       }),
       h("div", { class: "ww-hero-inner" }, [
-        h("div", { class: "ww-kicker" }, opts.kicker),
         h(
           "h1",
           { class: "ww-wordmark" },
@@ -118,9 +124,17 @@ export const WeirwoodLanding = (userOpts) => {
         ),
         h("div", { class: "ww-rule" }),
         h("p", { class: "ww-tagline" }, opts.tagline),
-        usesOverlay
-          ? h("button", { type: "button", class: "ww-cta", "data-greensight": "" }, opts.ctaLabel)
-          : h("a", { class: "ww-cta", href: resolveRelative(slug, opts.ctaLink) }, opts.ctaLabel),
+        h("div", { class: "ww-actions" }, [
+          usesOverlay
+            ? h("button", { type: "button", class: "ww-cta", "data-greensight": "" }, opts.ctaLabel)
+            : h("a", { class: "ww-cta", href: resolveRelative(slug, opts.ctaLink) }, opts.ctaLabel),
+          hasWorld &&
+            h(
+              "a",
+              { class: "ww-cta", href: resolveRelative(slug, opts.worldLink) },
+              opts.worldLabel,
+            ),
+        ]),
       ]),
     ])
 
