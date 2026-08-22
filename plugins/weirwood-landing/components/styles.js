@@ -45,6 +45,14 @@ export const landingStyles = `
   filter: drop-shadow(0 0 34px rgba(178, 58, 46, 0.5));
   pointer-events: none;
   user-select: none;
+  /* base.scss sets content-visibility:auto, border-radius:5px and margin:1rem 0
+     on every img. content-visibility applies size containment while it judges
+     the element off-screen, which collapses this absolutely-positioned image
+     with height:auto to nothing — the file loads, the rules apply, and the tree
+     never paints. Undo all three. */
+  content-visibility: visible;
+  border-radius: 0;
+  margin: 0;
 }
 
 .ww-hero-inner {
