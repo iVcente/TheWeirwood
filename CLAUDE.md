@@ -125,6 +125,12 @@ This site's own plugins:
   one article becomes a cell, labelled and counted automatically).
 - `plugins/weirwood-article` — frontmatter-driven metadata boxes and the "roots of this
   page" band (local graph + backlinks) that sits above the prose.
+- `plugins/weirwood-footer` — replaces `@quartz-community/footer`, whose "Created with"
+  string is hardcoded and localised (`links` is the only option it exposes), so the credit
+  bar can speak in-world. The Quartz link and version stay — the credit is courtesy, since
+  the notice MIT actually asks for is `LICENSE.txt` — but the copyright and year are gone;
+  the wording around the link is the `blessing`/`coda` options in `quartz.config.yaml`.
+  Ships no CSS — the bar is styled by `#quartz-body > footer` in `custom.scss`.
 
 ### Build & deploy
 

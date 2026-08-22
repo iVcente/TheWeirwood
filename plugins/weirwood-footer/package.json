@@ -1,0 +1,53 @@
+{
+  "name": "weirwood-footer",
+  "version": "1.0.0",
+  "description": "The site footer: a lore-voiced blessing that still credits Quartz.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    },
+    "./components": {
+      "import": "./components/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./index.js",
+  "sideEffects": false,
+  "peerDependencies": {
+    "preact": "^10.0.0"
+  },
+  "quartz": {
+    "name": "weirwood-footer",
+    "displayName": "Weirwood Footer",
+    "description": "Replaces the stock \"Created with Quartz\" line with an in-world one.",
+    "category": "component",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.0.0",
+    "dependencies": [],
+    "defaultOrder": 50,
+    "defaultEnabled": true,
+    "defaultOptions": {},
+    "components": {
+      "WeirwoodFooter": {
+        "displayName": "Weirwood Footer",
+        "description": "The blessing line, with the Quartz credit set into it.",
+        "defaultPosition": "footer",
+        "defaultPriority": 50
+      }
+    },
+    "optionSchema": {
+      "blessing": {
+        "type": "string"
+      },
+      "coda": {
+        "type": "string"
+      },
+      "links": {
+        "type": "object"
+      }
+    }
+  }
+}

@@ -241,8 +241,12 @@ plugins:
     layout:
       position: afterBody
       priority: 10
+  # Replaced by ./plugins/weirwood-footer, which says the same thing in the
+  # site's own voice. This plugin's "Created with" string is hardcoded and
+  # localised — `links` is the only thing it exposes — so rewording it means
+  # rendering the footer ourselves.
   - source: "@quartz-community/footer"
-    enabled: true
+    enabled: false
     options:
       links: {}
     layout:
@@ -277,6 +281,29 @@ plugins:
     layout:
       position: beforeBody
       priority: 30
+  # Footer: the stock "Created with Quartz v5.0.0 © 2026" in the site's voice,
+  # and without the copyright — Quartz is MIT-licensed and the notice the licence
+  # asks for lives in LICENSE.txt, so the credit here is courtesy, which the
+  # blessing pays in full.
+  #
+  # Other blessings, if this one wears thin:
+  #   Carved into the heart tree with Quartz v5.0.0
+  #   Grown from Quartz v5.0.0, watered by the Old Gods
+  #   Set down by candlelight with Quartz v5.0.0
+  #   Copied fair at the Citadel with Quartz v5.0.0
+  #   Sung into the roots by Quartz v5.0.0
+  #   Bound in weirwood and Quartz v5.0.0
+  #   Carried north by raven and Quartz v5.0.0
+  - source: ./plugins/weirwood-footer
+    enabled: true
+    options:
+      # The line runs `blessing` → Quartz link → `coda`.
+      blessing: "Warded by the Old Gods, raised with"
+      coda: "blessing."
+      links: {}
+    layout:
+      position: footer
+      priority: 50
   # MUST stay enabled: despite the name, this plugin is the frontmatter
   # transformer as well as the properties-table component. Disabling it strips
   # frontmatter from every page — titles become "Untitled" and nothing that
