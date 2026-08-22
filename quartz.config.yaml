@@ -15,31 +15,44 @@ configuration:
   theme:
     fontOrigin: googleFonts
     cdnCaching: true
+    # Three voices of type: Cinzel = inscription, EB Garamond = the maester's
+    # hand, IBM Plex Mono = the ledger (also used for UI chrome in custom.scss).
+    # The object form is what quartz/util/theme.ts consumes; the YAML schema
+    # only describes the string form, so editors will flag these — that is
+    # cosmetic, nothing validates this file at build time.
     typography:
-      header: Schibsted Grotesk
-      body: Source Sans Pro
-      code: IBM Plex Mono
+      header:
+        name: Cinzel
+        weights: [400, 500, 600, 700]
+      body:
+        name: EB Garamond
+        weights: [400, 500]
+        includeItalic: true
+      code:
+        name: IBM Plex Mono
+        weights: [400, 500]
+        includeItalic: true
+    # Dark is the ONLY mode. The `darkmode` plugin is disabled below, which
+    # means nothing ever sets :root[saved-theme="dark"] — so `lightMode` is the
+    # palette that always applies. `darkMode` is kept identical so that
+    # re-enabling the toggle can never produce a light page.
     colors:
-      lightMode:
-        light: "#faf8f8"
-        lightgray: "#e5e5e5"
-        gray: "#b8b8b8"
-        darkgray: "#4e4e4e"
-        dark: "#2b2b2b"
-        secondary: "#284b63"
-        tertiary: "#84a59d"
-        highlight: rgba(143, 159, 169, 0.15)
-        textHighlight: "#fff23688"
-      darkMode:
-        light: "#161618"
-        lightgray: "#393639"
-        gray: "#646464"
-        darkgray: "#d4d4d4"
-        dark: "#ebebec"
-        secondary: "#7b97aa"
-        tertiary: "#84a59d"
-        highlight: rgba(143, 159, 169, 0.15)
-        textHighlight: "#b3aa0288"
+      lightMode: &weirwoodPalette
+        light: "#17130f" # page background — warm ink black
+        lightgray: "#2a231b" # borders, rules, hr
+        gray: "#6f6152" # muted text, graph nodes
+        darkgray: "#c8bba4" # body prose text
+        dark: "#ece0c8" # headings, brightest text
+        secondary: "#b23a2e" # links, titles, active graph node
+        tertiary: "#c7503f" # hover / visited accent
+        highlight: "#241813" # internal-link & search background tint
+        # ==mark== background. The handoff notes "Quartz applies ~50% alpha",
+        # which is not true in v5 — this token is painted opaque (stock tokens
+        # carry their own 8-digit alpha). The 7a mockup and screenshot both show
+        # the mark as this olive-gold rather than a brighter amber, so the
+        # screenshot wins. Dark text on top comes from custom.scss.
+        textHighlight: "#8f6b1f"
+      darkMode: *weirwoodPalette
 plugins:
   - source: "@quartz-community/created-modified-date"
     enabled: true
@@ -54,8 +67,8 @@ plugins:
     enabled: true
     options:
       theme:
-        light: github-light
-        dark: github-dark
+        light: vesper
+        dark: vesper
       keepBackground: false
     order: 20
   - source: "@quartz-community/obsidian-flavored-markdown"
@@ -67,12 +80,10 @@ plugins:
   - source: "@quartz-community/github-flavored-markdown"
     enabled: true
     order: 40
+  # No sidebar to host it, and the broadsheet reads top-to-bottom.
   - source: "@quartz-community/table-of-contents"
-    enabled: true
+    enabled: false
     order: 50
-    layout:
-      position: right
-      priority: 30
   - source: "@quartz-community/crawl-links"
     enabled: true
     options:
@@ -98,8 +109,24 @@ plugins:
   - source: "@quartz-community/roam"
     enabled: false
     order: 92
+  # This plugin does NOT read configuration.theme.typography — it resolves its
+  # own options and otherwise falls back to Quartz's stock Schibsted Grotesk /
+  # Source Sans Pro, emitting a --bodyFont/--headerFont block that loads AFTER
+  # the theme's. It must be told the same three fonts or it silently wins.
   - source: "@quartz-community/quartz-fonts"
     enabled: true
+    options:
+      header:
+        name: Cinzel
+        weights: [400, 500, 600, 700]
+      body:
+        name: EB Garamond
+        weights: [400, 500]
+        includeItalic: true
+      code:
+        name: IBM Plex Mono
+        weights: [400, 500]
+        includeItalic: true
   - source: "@quartz-themes/core"
     enabled: false
     options:
@@ -147,39 +174,39 @@ plugins:
     enabled: true
   - source: "@quartz-community/tag-page"
     enabled: true
+  # The design is a single-column broadsheet with no sidebars, so the explorer
+  # has nowhere to live. Navigation is the top bar, the landing count boxes,
+  # breadcrumbs and in-page links.
   - source: "@quartz-community/explorer"
-    enabled: true
-    layout:
-      position: left
-      priority: 50
+    enabled: false
+  # Graph stays ENABLED but is deliberately given no `layout` block:
+  # weirwood-article and weirwood-landing render it themselves, relocated into
+  # the "roots of this page" band and behind the greensight CTA. A registered
+  # but unplaced component still has its CSS and scripts emitted
+  # (componentResources collects from the registry, not the layout), so this is
+  # the real interactive d3 graph. Disabling it would break both.
   - source: "@quartz-community/graph"
     enabled: true
-    layout:
-      position: right
-      priority: 10
+  # Backlinks are rendered directly by weirwood-article — the band needs a
+  # two-column list with a count in its label, which is further from this
+  # component's markup than it is worth fighting. The data comes from
+  # crawl-links (file.links), not from this plugin.
+  - source: "@quartz-community/backlinks"
+    enabled: false
+  # The slim top bar: site title on the left, search on the right.
   - source: "@quartz-community/search"
     enabled: true
     layout:
-      position: left
+      position: header
       priority: 20
-      group: toolbar
-      groupOptions:
-        grow: true
-  - source: "@quartz-community/backlinks"
-    enabled: true
-    layout:
-      position: right
-      priority: 50
   - source: "@quartz-community/article-title"
     enabled: true
     layout:
       position: beforeBody
       priority: 10
+  # Replaced by the frontmatter metadata boxes in weirwood-article.
   - source: "@quartz-community/content-meta"
-    enabled: true
-    layout:
-      position: beforeBody
-      priority: 20
+    enabled: false
   - source: "@quartz-community/tag-list"
     enabled: false
     layout:
@@ -188,20 +215,18 @@ plugins:
   - source: "@quartz-community/page-title"
     enabled: true
     layout:
-      position: left
+      position: header
       priority: 10
+  # Dark is the only mode — see the `theme.colors` comment above. Leaving this
+  # disabled is what keeps :root[saved-theme="dark"] unset.
   - source: "@quartz-community/darkmode"
-    enabled: true
+    enabled: false
     layout:
       position: left
       priority: 30
       group: toolbar
   - source: "@quartz-community/reader-mode"
-    enabled: true
-    layout:
-      position: left
-      priority: 35
-      group: toolbar
+    enabled: false
   - source: "@quartz-community/breadcrumbs"
     enabled: true
     layout:
@@ -219,43 +244,54 @@ plugins:
   - source: "@quartz-community/footer"
     enabled: true
     options:
-      links:
-        GitHub: https://github.com/jackyzha0/quartz
-        Discord Community: https://discord.gg/cRFFHYye7t
+      links: {}
     layout:
       position: footer
       priority: 50
   - source: "@quartz-community/recent-notes"
     enabled: false
   - source: "@quartz-community/spacer"
-    enabled: true
-    options: {}
-    order: 25
-    layout:
-      position: left
-      priority: 25
-      display: mobile-only
+    enabled: false
   - source: "@quartz-community/bases-page"
     enabled: true
     options: {}
     order: 50
+  # Local plugins (symlinked from ./plugins, never built).
+  #
+  # Landing: the 9a hero — canopy/roots weirwood, heartglow, wordmark, the
+  # greensight CTA — plus the count-box row. Renders nothing off the index, and
+  # registers the page type that gives the index its own frame.
+  - source: ./plugins/weirwood-landing
+    enabled: true
+    options:
+      # "" points the CTA at Quartz's global-graph overlay. Set a slug here to
+      # send it to a real page instead.
+      ctaLink: ""
+    layout:
+      position: beforeBody
+      priority: 1
+  # Article: the frontmatter metadata boxes and the "roots of this page" band
+  # (Greensight + backlinks), both above the prose. Renders nothing on the index.
+  - source: ./plugins/weirwood-article
+    enabled: true
+    layout:
+      position: beforeBody
+      priority: 30
+  # MUST stay enabled: despite the name, this plugin is the frontmatter
+  # transformer as well as the properties-table component. Disabling it strips
+  # frontmatter from every page — titles become "Untitled" and nothing that
+  # reads fileData.frontmatter renders. `hidePropertiesView` turns off only the
+  # table, which the metadata boxes in weirwood-article replace.
   - source: "@quartz-community/note-properties"
     enabled: true
     options:
       includeAll: false
-      includedProperties:
-        - description
-        - tags
-        - aliases
+      includedProperties: []
       excludedProperties: []
-      hidePropertiesView: false
+      hidePropertiesView: true
       delimiters: ---
       language: yaml
     order: 5
-    layout:
-      position: beforeBody
-      priority: 15
-      display: all
 layout:
   groups:
     toolbar:
@@ -268,16 +304,44 @@ layout:
         beforeBody: []
         left: []
         right: []
-    content: {}
-    folder:
-      exclude:
-        - reader-mode
+    # Every article is a single-column broadsheet: `template` sets the frame for
+    # the whole page type, which is what drops the sidebars sitewide.
+    content:
+      template: full-width
       positions:
+        left: []
+        right: []
+    # The front door. The weirwood-landing plugin claims the index via a page
+    # type; the hero already states the title, so Quartz's own title, breadcrumb
+    # and table of contents would only repeat it above the fold.
+    #
+    # These must be full source strings — `exclude` compares against the
+    # plugin's `source` verbatim, so short names silently match nothing.
+    landing:
+      exclude:
+        - "@quartz-community/article-title"
+        - "@quartz-community/breadcrumbs"
+        - "@quartz-community/table-of-contents"
+        - "@quartz-community/page-title"
+        - ./plugins/weirwood-article
+      positions:
+        left: []
+        right: []
+    folder:
+      template: full-width
+      exclude:
+        - "@quartz-community/table-of-contents"
+        - ./plugins/weirwood-article
+      positions:
+        left: []
         right: []
     tag:
+      template: full-width
       exclude:
-        - reader-mode
+        - "@quartz-community/table-of-contents"
+        - ./plugins/weirwood-article
       positions:
+        left: []
         right: []
     canvas: {}
     bases: {}

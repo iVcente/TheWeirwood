@@ -1,3 +1,406 @@
 @use "./variables.scss" as *;
 
-// put your custom CSS here!
+// ---------------------------------------------------------------------------
+// The Weirwood — a maester's chronicle.
+//
+// The nine palette tokens and the three fonts live in quartz.config.yaml. This
+// file carries what the theme block cannot express: the single-column
+// broadsheet, the surface layering, the reading rhythm, and the "mono as UI
+// chrome" voice that makes the site read as record-keeping rather than a blog.
+//
+// Dark is the only mode — the `darkmode` plugin is disabled, so nothing ever
+// sets :root[saved-theme="dark"] and the lightMode palette always applies.
+// Do not add a light palette here.
+// ---------------------------------------------------------------------------
+
+:root {
+  // Surfaces below `--light`, which the nine-token palette has no room for.
+  --ww-panel: #120e09; // bands, cards, metadata boxes
+  --ww-inset: #100c08; // code blocks
+  --ww-graph-bg: #0f0b07; // the deepest inset — the greensight well
+  --ww-muted: #9a8b73; // taglines, subtitles, captions
+  --ww-edge: #3a2f24; // graph edges, quiet borders
+  --ww-divider: #221c15; // hairline list dividers
+
+  // Supplied by the darkmode plugin in stock Quartz; that plugin is off here,
+  // so without this, form controls and scrollbars would render light.
+  color-scheme: dark;
+}
+
+// --- reading rhythm --------------------------------------------------------
+
+body {
+  font-size: 18px;
+  line-height: 1.72;
+}
+
+::selection {
+  background: #5a2a20;
+  color: #f3e8d2;
+}
+
+// --- the broadsheet --------------------------------------------------------
+// Every page runs in the full-width frame (layout.byPageType in
+// quartz.config.yaml), so the centre column is the whole page. Hold the measure
+// here instead of in a sidebar grid.
+
+// base.scss pins the full-width frame's column to `max-width: 100%` AND
+// `min-width: 100%` — the min-width is what actually forces the issue, so both
+// have to be undone or the measure below is silently ignored.
+.page[data-frame="full-width"] > #quartz-body .center.full-width {
+  max-width: 780px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.page > #quartz-body .center > article {
+  padding: 28px 0 36px;
+}
+
+// base.scss puts 6rem of margin above .page-header. In the three-column layout
+// that cleared the sidebars; here it reads as a tall empty band before anything
+// starts. The top bar and the hero both belong near the top edge.
+.page > #quartz-body .page-header {
+  margin-top: 0;
+}
+
+// The header block above the prose is centred; the prose itself is not.
+.page-header {
+  text-align: center;
+  padding-top: 12px;
+}
+
+// --- the top bar -----------------------------------------------------------
+// With no sidebars this slim strip is the only persistent navigation: the site
+// title returns home and search stays reachable from every page.
+
+.page-header > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 14px 0 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--lightgray);
+  text-align: left;
+}
+
+.page-title {
+  margin: 0;
+  font-family: var(--headerFont);
+  font-size: 15px;
+
+  a {
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dark);
+    font-weight: 400;
+    background-color: transparent;
+
+    &:hover {
+      color: var(--tertiary);
+    }
+  }
+}
+
+// Note: do NOT style .preview-container's scrollbar. Declaring
+// ::-webkit-scrollbar (or scrollbar-width) opts Chrome out of overlay
+// scrollbars and gives it a classic, permanently visible one. Leaving it alone
+// keeps the OS behaviour, which already hides the bar until it is used — the
+// script in weirwood-article avoids scrolling the preview so it never flashes.
+
+// Icon only. The button keeps its aria-label, so the word is still announced
+// to screen readers even though it is not drawn.
+.search > .search-button {
+  background-color: transparent;
+  border: 1px solid var(--ww-edge);
+  border-radius: 4px;
+  height: auto;
+  padding: 7px;
+
+  & > p {
+    display: none;
+  }
+
+  & > svg {
+    width: 16px;
+    min-width: 16px;
+    margin: 0;
+  }
+
+  &:hover {
+    border-color: var(--gray);
+    background-color: var(--highlight);
+
+    .search-path {
+      stroke: var(--tertiary);
+    }
+  }
+
+  // Closing the search modal returns focus to this button, which in Chrome
+  // draws its blue focus ring over the artwork. Drop the ring, but mark focus
+  // in the palette instead of removing the cue altogether — the button still
+  // has to be findable by keyboard.
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--tertiary);
+  }
+}
+
+// --- three voices of type --------------------------------------------------
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: 0.03em;
+}
+
+.article-title {
+  font-family: var(--headerFont);
+  font-weight: 600;
+  font-size: 38px;
+  line-height: 1.06;
+  letter-spacing: 0.02em;
+  color: var(--dark);
+  margin: 0;
+}
+
+article > h2 {
+  font-family: var(--headerFont);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: 0.03em;
+  color: #e0d3b8;
+  margin: 24px 0 10px;
+}
+
+article > h3,
+article > h4 {
+  font-weight: 500;
+  color: #e0d3b8;
+}
+
+// Mono is the ledger voice: it carries chrome and metadata, not just code.
+.breadcrumb-container,
+footer {
+  font-family: var(--codeFont);
+}
+
+.breadcrumb-container {
+  justify-content: center;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 16px;
+
+  a {
+    color: var(--gray);
+    font-weight: 400;
+    background-color: transparent;
+
+    &:hover {
+      color: var(--tertiary);
+    }
+  }
+
+  .breadcrumb-element:last-of-type a {
+    color: #8a7b67;
+  }
+}
+
+// The id beats the footer plugin's own `footer {}` rules, which are emitted in a
+// component stylesheet that loads after this file — notably its 4rem bottom
+// margin, which left the bar floating well above the foot of the page.
+#quartz-body > footer {
+  margin: 0;
+  padding: 12px 24px;
+  opacity: 1;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--gray);
+  border-top: 1px solid var(--lightgray);
+
+  & > p {
+    margin: 0;
+  }
+
+  // The links list is configured empty; without this it still reserves space.
+  & > ul:empty {
+    display: none;
+  }
+}
+
+// --- prose -----------------------------------------------------------------
+
+article a.internal {
+  color: var(--tertiary);
+
+  &:hover {
+    color: #e0715f;
+  }
+}
+
+// House words and other lead-ins: an italic line on its own after the title.
+article > p:first-of-type > em:only-child {
+  font-family: var(--bodyFont);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ww-muted);
+}
+
+// The entry opens with a carved initial. Articles only — the landing's prose
+// sits under the hero, where a drop cap would fight the wordmark.
+body:not([data-slug="index"]) article > p:first-of-type::first-letter {
+  font-family: var(--headerFont);
+  font-size: 56px;
+  line-height: 0.78;
+  color: var(--secondary);
+  float: left;
+  padding: 4px 12px 0 0;
+}
+
+blockquote {
+  font-style: italic;
+  color: #b9ac95;
+  margin: 20px 0;
+  padding: 4px 20px;
+}
+
+// The one warm gold in the palette, reserved for ==marks== so highlights never
+// compete with links.
+.text-highlight {
+  color: #241813;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+figure[data-rehype-pretty-code-figure] pre,
+pre:has(> code) {
+  background-color: var(--ww-inset);
+  border: 1px solid var(--lightgray);
+  border-radius: 5px;
+  padding: 16px 18px;
+}
+
+code {
+  font-size: 0.85em;
+}
+
+// The roots band spans the full page while the prose keeps its measure; padding
+// is re-added inside so its contents stay aligned with the column.
+.ww-roots {
+  margin-inline: -24px;
+  padding-inline: 24px;
+}
+
+// --- landing ---------------------------------------------------------------
+// Quartz's title, breadcrumb and table of contents are dropped from the landing
+// in quartz.config.yaml (layout.byPageType.landing), so the hero is the first
+// thing on the page. The front door takes a wider measure than an article.
+
+// The front door is a single screen: the hero absorbs whatever height is left
+// over so the count boxes come to rest just above the footer, and the footer
+// sits on the bottom edge instead of floating in the middle of an empty page.
+// This is scoped to the landing — articles scroll normally.
+body[data-slug="index"] {
+  .page > #quartz-body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    grid-template-rows: 1fr auto auto;
+    // The grid carries a 5px gap, and the empty middle row means two of them
+    // land between the count boxes and the footer. Closing it lets the cell
+    // dividers run all the way down to the footer rule.
+    row-gap: 0;
+  }
+
+  // The chain from the grid cell down to the hero, so `flex: 1` can reach it.
+  .center.full-width,
+  .page-header,
+  .page-header > .popover-hint,
+  .ww-landing {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .page-header,
+  .page-header > .popover-hint,
+  .ww-landing {
+    flex: 1;
+  }
+
+  .ww-landing {
+    margin-bottom: 0;
+  }
+
+  .ww-hero {
+    flex: 1;
+    justify-content: center;
+  }
+
+  // Empty, but its 1rem top margin would still show as a gap.
+  .page-footer:empty {
+    display: none;
+  }
+
+  // The hero and the count boxes run edge to edge; only the prose beneath them
+  // takes the reading measure (see the .center override below).
+  .page-header {
+    position: relative;
+    padding-top: 0;
+  }
+
+  // No bar across the front door: the artwork starts at the very top of the
+  // viewport. The header lifts out of the flow entirely so the search button is
+  // left resting in the corner, over the canopy.
+  .page-header > header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 3;
+    justify-content: flex-end;
+    padding: 16px 20px;
+    margin: 0;
+    border-bottom: none;
+  }
+
+  // The site title is dropped from this page type entirely (see
+  // layout.byPageType.landing) — you are already home, and the wordmark below
+  // says the same thing. The search button keeps its ordinary appearance.
+
+  // index.md carries only frontmatter, so this collapses to nothing and the
+  // count boxes are the last thing on the page. Vertical spacing is left to the
+  // prose's own margins, so adding text back here needs no change.
+  //
+  // The `.page > #quartz-body` prefix is load-bearing: the general article rule
+  // is qualified by an id, so a shorter selector here loses the cascade and its
+  // 28px/36px padding survives as a gap under the count boxes.
+  .page > #quartz-body .center > article {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  // The frame draws a rule between the body and the page footer. With no body
+  // it would hang under the count boxes as a stray line.
+  .center > hr {
+    display: none;
+  }
+}
+
+// The landing's column is the full viewport; the measure is applied to its
+// prose instead (above).
+body[data-slug="index"] .page[data-frame="full-width"] > #quartz-body .center.full-width {
+  max-width: none;
+  min-width: 100%;
+  padding: 0;
+}
