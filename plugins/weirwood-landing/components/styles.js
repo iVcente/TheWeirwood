@@ -93,20 +93,25 @@ export const landingStyles = `
 }
 
 /* Both CTAs are filled red and carry equal weight — there is no secondary
-   variant. */
+   variant, and they match in width too: 1fr tracks in a shrink-to-fit grid all
+   take the width of the widest button, so the pair reads as one object rather
+   than as two buttons sized by their word lengths. */
 .ww-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: 12px;
-  justify-content: center;
 }
 
 .ww-cta {
-  display: inline-block;
   font-family: var(--codeFont);
   font-size: 12px;
+  /* base.scss weights every anchor semibold, which would leave whichever CTA is a
+     link heavier than the button beside it. */
+  font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  text-align: center;
   color: #f3e8d2;
   background: var(--secondary);
   border: 1px solid var(--secondary);
@@ -172,7 +177,10 @@ a.ww-count-cell:hover .ww-count-label {
 }
 
 /* The graph the CTA opens. Off-screen rather than display:none so d3 still has
-   a real box to lay out in; the overlay it opens is position:fixed. */
+   a real box to lay out in. Only the inert local-graph box is parked here: the
+   overlay is position:fixed and nothing in this chain establishes a containing
+   block for it, so it opens at the viewport and needs no counter-offset —
+   giving it one is what used to push it 10000px off-screen. */
 .ww-graph-host {
   position: absolute;
   left: -10000px;
@@ -182,13 +190,13 @@ a.ww-count-cell:hover .ww-count-label {
   overflow: hidden;
 }
 
-.ww-graph-host .global-graph-outer {
-  left: 10000px;
-}
-
 @media all and (max-width: 800px) {
   .ww-hero {
     padding: 48px 20px 40px;
+  }
+
+  .ww-actions {
+    grid-auto-flow: row;
   }
 
   a.ww-count-cell {

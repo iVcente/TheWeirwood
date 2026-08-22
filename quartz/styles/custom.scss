@@ -228,10 +228,9 @@ footer {
   opacity: 1;
   font-size: 10px;
   letter-spacing: 0.14em;
-  // Uppercased here rather than in the plugin, so the config keeps the blessing
-  // in sentence case and the bar joins the breadcrumb as chrome rather than
-  // prose. Costs no width: --codeFont is monospace, so caps set no wider.
-  text-transform: uppercase;
+  // Set in the case the config writes it: the blessing is a sentence, and
+  // small caps made it read as a system notice rather than as the site's own
+  // voice. The breadcrumb above is still uppercased — that one is chrome.
   color: var(--gray);
   border-top: 1px solid var(--lightgray);
 
@@ -307,6 +306,33 @@ code {
 .ww-roots {
   margin-inline: -24px;
   padding-inline: 24px;
+}
+
+// --- greensight overlay ----------------------------------------------------
+// The global-graph overlay is stock Quartz chrome that this theme had never
+// touched. Its full-viewport backdrop paints nothing of its own — the only
+// thing it draws is `backdrop-filter: blur(4px)`. That filter puts the element
+// on its own compositor surface, and Chrome tears that surface down a frame
+// before the page beneath it is re-rastered, so closing the greensight flashed
+// the surface's white clear colour across the viewport.
+//
+// Adding a background alone does not help: the surface exists because of the
+// filter, not because of what is painted into it. Dropping the filter is what
+// removes the surface, so the scrim carries the whole effect. On a page this
+// dark that costs nothing — a 4px blur behind near-opaque black was never
+// visible, and the scrim does the real work of pushing the page back behind
+// the well.
+//
+// `:root` is here to out-specify the stock `.graph > .global-graph-outer`:
+// index.css is linked before the component stylesheets, so a plain tie loses.
+//
+// One knock-on: `backdrop-filter` was also making this element the containing
+// block for the fixed-position `.global-graph-container` inside it. Without it
+// that container resolves against the viewport instead — the same box, since
+// this element is itself fixed at 100vw x 100%.
+:root .graph > .global-graph-outer {
+  backdrop-filter: none;
+  background-color: rgba(9, 7, 4, 0.88);
 }
 
 // --- landing ---------------------------------------------------------------

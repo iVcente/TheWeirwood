@@ -14,7 +14,14 @@ document.addEventListener("nav", () => {
     return
   }
 
-  const open = () => icon.click()
+  const open = (event) => {
+    // The graph closes its overlay from a document-level click on anything
+    // that is neither the icon nor the graph container. Without this the CTA's
+    // own click finishes bubbling straight after the synthetic one, so the
+    // overlay opens and shuts inside a single press and appears dead.
+    event.stopPropagation()
+    icon.click()
+  }
   cta.addEventListener("click", open)
   window.addCleanup(() => cta.removeEventListener("click", open))
 })
