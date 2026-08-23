@@ -37,9 +37,20 @@ export const landingStyles = `
 .ww-tree {
   position: absolute;
   left: 50%;
-  top: -46px;
+  /* Both of these used to be fixed pixels, which is why the hero fell apart on
+     a large monitor: the hero grows with the viewport, the tree did not, so at
+     1920px the same 560px tree sat marooned in a much wider frame. Sized and
+     cropped in viewport units instead, the wordmark-to-canopy proportion that
+     works on a 13" laptop holds at any size.
+
+     Below ~1475px the width resolves to the same 560px it always was — the
+     laptop rendering is unchanged — and past that it tracks the screen up to
+     1150px, which is as far as the 1008px source can be pushed before the
+     upscale shows. 82vw and 88vh are the guards for narrow and short windows;
+     without the second, a short wide window would crop the canopy away. */
+  top: -7%;
   transform: translateX(-50%);
-  width: min(560px, 82vw);
+  width: min(82vw, 88vh, max(560px, min(38vw, 1150px)));
   height: auto;
   opacity: 0.3;
   filter: drop-shadow(0 0 34px rgba(178, 58, 46, 0.5));
@@ -63,7 +74,11 @@ export const landingStyles = `
 .ww-wordmark {
   font-family: var(--headerFont);
   font-weight: 700;
-  font-size: clamp(2.75rem, 9vw, 66px);
+  /* The clamp alone tops out at 66px from 733px upward, so on a wide screen the
+     wordmark shrank against a hero that kept growing. The max() branch takes
+     over only past ~1435px — every size at or below the laptop is untouched —
+     and holds the same ratio to the tree until it stops at 96px. */
+  font-size: max(clamp(2.75rem, 9vw, 66px), min(4.6vw, 96px));
   letter-spacing: 0.1em;
   line-height: 0.94;
   color: var(--dark);
@@ -84,10 +99,12 @@ export const landingStyles = `
 .ww-tagline {
   font-family: var(--bodyFont);
   font-style: italic;
-  font-size: 19px;
+  /* Same shape as the wordmark: 19px up to ~1650px, then growing with it so the
+     line under a 90px wordmark does not read as fine print. */
+  font-size: max(19px, min(1.15vw, 24px));
   line-height: 1.5;
   color: var(--ww-muted);
-  max-width: 440px;
+  max-width: max(440px, 30vw);
   margin: 0 auto 32px;
   text-wrap: pretty;
 }

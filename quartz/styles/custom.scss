@@ -44,6 +44,18 @@ body {
 // quartz.config.yaml), so the centre column is the whole page. Hold the measure
 // here instead of in a sidebar grid.
 
+// base.scss caps `.page` at $desktop + 300px — 1500px — a holdover from the
+// three-column layout, where that width had to hold two sidebars plus the
+// measure. Here the measure is held on `.center.full-width` below instead, so
+// the only thing the cap still does is stop the full-bleed chrome dead at
+// 1500px: on any viewport wider than that, the landing's hero and count boxes
+// and the footer rule on every page end in mid-air with bare background either
+// side. Let the frame reach the viewport edge — the reading column is set
+// independently and does not move.
+.page {
+  max-width: none;
+}
+
 // base.scss pins the full-width frame's column to `max-width: 100%` AND
 // `min-width: 100%` — the min-width is what actually forces the issue, so both
 // have to be undone or the measure below is silently ignored.
