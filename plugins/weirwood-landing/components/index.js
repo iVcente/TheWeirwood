@@ -110,7 +110,14 @@ export const WeirwoodLanding = (userOpts) => {
     const hero = h("section", { class: "ww-hero" }, [
       h("img", {
         class: "ww-tree",
-        src: "./static/weirwood.png",
+        // Vector, so it stays sharp at any size and on any pixel density — the
+        // hero renders it near 900px tall, well past what the old 1008px PNG
+        // could serve a HiDPI screen. The fill is baked into the file rather
+        // than taken from --secondary: an external SVG loaded through <img> is
+        // an isolated document, so it cannot see the page's custom properties
+        // and `currentColor` would resolve to black. Keep the two in step by
+        // hand if the palette ever moves.
+        src: "./static/weirwood.svg",
         alt: "",
         "aria-hidden": "true",
         loading: "eager",

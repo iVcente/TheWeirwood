@@ -101,6 +101,17 @@ Quartz version, independent of whatever visual design is in place.
   visitor's OS preference. That plugin also supplies `color-scheme`.
 - **`textHighlight` is painted opaque.** Stock tokens carry their own 8-digit alpha; a
   v4-era value that assumed ~50% alpha will render muddy.
+- **The favicon path is hardcoded, not configurable.** `@quartz-community/favicon` reads
+  `quartz/static/icon.png`, resizes it to 48x48 and writes `favicon.ico` (PNG bytes under
+  an `.ico` name); the `<link rel="icon">` in the head points at the full-size
+  `static/icon.png`. The plugin exposes no options, so **changing the favicon means
+  changing that file**. This repo keeps the candidates alongside it —
+  `icon-tree.png` (Lorc's dead wood, also the hero and the og-image) and `icon-face.png`
+  (Cathelineau's carved face, the current favicon) — and `icon.png` is a copy of whichever
+  is in use. Both are CC BY 3.0 and credited at `/colophon`; see README.md.
+- **Favicons cache hard.** A changed icon can keep showing the old one — or a different
+  project's, on `localhost:8080` — long after a normal reload. Confirm the file itself by
+  opening `/static/icon.png` directly, then check the tab in a private window.
 
 ### Custom components
 
@@ -127,10 +138,14 @@ This site's own plugins:
   page" band (local graph + backlinks) that sits above the prose.
 - `plugins/weirwood-footer` — replaces `@quartz-community/footer`, whose "Created with"
   string is hardcoded and localised (`links` is the only option it exposes), so the credit
-  bar can speak in-world. The Quartz link and version stay — the credit is courtesy, since
-  the notice MIT actually asks for is `LICENSE.txt` — but the copyright and year are gone;
-  the wording around the link is the `blessing`/`coda` options in `quartz.config.yaml`.
-  Ships no CSS — the bar is styled by `#quartz-body > footer` in `custom.scss`.
+  bar can speak in-world. One centred sentence with a link set into it, built from the
+  `blessing` / `linkLabel` / `linkHref` / `coda` options in `quartz.config.yaml`; the
+  copyright, the year and the Quartz version are all gone. **The link points at
+  `/colophon` and must keep pointing somewhere that carries the heart tree's CC BY
+  attribution** — that page is the only place the notice appears, and the licence requires
+  it stay reachable. Quartz's own credit moved there too; it is courtesy either way, since
+  the notice MIT asks for is `LICENSE.txt`. Ships no CSS — the bar is styled by
+  `#quartz-body > footer` in `custom.scss`.
 
 ### Build & deploy
 

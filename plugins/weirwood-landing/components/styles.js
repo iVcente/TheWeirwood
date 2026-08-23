@@ -31,27 +31,38 @@ export const landingStyles = `
     repeating-linear-gradient(135deg, rgba(255, 220, 180, 0.02) 0 2px, transparent 2px 11px);
 }
 
-/* The drawn heart tree, cropped off the top edge so the branches run out of
-   frame and the trunk lands behind the wordmark. The drop-shadow is what makes
-   it glow into the heartglow instead of sitting flatly on top of it. */
+/* The drawn heart tree, standing in the hero rather than cropped into it: the
+   art is anchored to the foot of the section and sized to the height it is
+   given, so the crown clears the top edge instead of being sheared off by it
+   and the trunk fills what used to be dead space under the buttons. The
+   drop-shadow is what makes it glow into the heartglow instead of sitting
+   flatly on top of it. */
 .ww-tree {
   position: absolute;
   left: 50%;
-  /* Both of these used to be fixed pixels, which is why the hero fell apart on
-     a large monitor: the hero grows with the viewport, the tree did not, so at
-     1920px the same 560px tree sat marooned in a much wider frame. Sized and
-     cropped in viewport units instead, the wordmark-to-canopy proportion that
-     works on a 13" laptop holds at any size.
+  /* object-fit:contain over a box the size of the whole hero is what makes
+     this survive every window shape: the art scales to fit inside the box
+     without ever being cropped or stretched, so on a wide window the hero's
+     height sets the size and on a narrow one its width does. This replaces the
+     fixed 560px, which is what left the tree marooned on a large monitor.
 
-     Below ~1475px the width resolves to the same 560px it always was — the
-     laptop rendering is unchanged — and past that it tracks the screen up to
-     1150px, which is as far as the 1008px source can be pushed before the
-     upscale shows. 82vw and 88vh are the guards for narrow and short windows;
-     without the second, a short wide window would crop the canopy away. */
-  top: -7%;
+     Filling the box still leaves the tree some air, because the source carries
+     transparent margin on every side. */
+  /* The root flare stops 2.95% short of the foot of the PNG (the drawn art ends
+     at row 987 of 1018), which rendered as a visible gap between the roots and
+     the count boxes. Dropping the element by that same fraction stands the tree
+     on the boxes: the art scales with the hero, so the percentage tracks it at
+     every size, and the only thing pushed out of frame is the empty margin
+     itself. Re-measure this if the artwork is ever replaced. */
+  bottom: -2.95%;
   transform: translateX(-50%);
-  width: min(82vw, 88vh, max(560px, min(38vw, 1150px)));
-  height: auto;
+  width: min(96vw, 1400px);
+  height: 100%;
+  /* Past ~1200px the 1008px source begins to show the upscale. Stop growing
+     there and let any further height open up above the crown. */
+  max-height: 1200px;
+  object-fit: contain;
+  object-position: bottom center;
   opacity: 0.3;
   filter: drop-shadow(0 0 34px rgba(178, 58, 46, 0.5));
   pointer-events: none;
@@ -155,6 +166,14 @@ export const landingStyles = `
 }
 
 a.ww-count-cell {
+  /* base.scss sets box-sizing on the body element alone and box-sizing does not inherit,
+     so without this the cell is content-box and its side padding is added
+     outside the flex basis. Harmless while the basis is 160px and flex-grow
+     absorbs it, but the mobile rule below asks for 50% — and 50% + 16px twice
+     over is wider than the row, so every cell wrapped onto a line of its own
+     and the 2x2 grid became a 1x4 column tall enough to push the footer off
+     the screen. */
+  box-sizing: border-box;
   flex: 1 1 160px;
   padding: 18px 8px;
   text-align: center;

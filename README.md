@@ -105,3 +105,21 @@ CLAUDE.md               # conventions for future Claude Code sessions
 
 Built on [Quartz v5](https://quartz.jzhao.xyz) by Jacky Zhao and contributors
 (MIT). Content is my own except where quoted and attributed.
+
+Third-party assets, all [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
+from [game-icons.net](https://game-icons.net/). The licence requires these
+credits to stay reachable from the site itself: they are published at
+`/colophon` and linked from the footer of every page. **Do not remove that link
+without moving the attribution somewhere equally findable.**
+
+- `quartz/static/weirwood.svg`, `quartz/static/icon-tree.png` and
+  `quartz/static/og-image.png` — "Dead wood icon" by
+  [Lorc](https://lorcblog.blogspot.com/)
+  ([source](https://game-icons.net/1x1/lorc/dead-wood.html)). Modified:
+  recoloured, background removed or replaced, viewBox re-cropped.
+- `quartz/static/icon-face.png` — "Tree face icon" by Cathelineau
+  ([source](https://game-icons.net/1x1/cathelineau/tree-face.html)). Modified:
+  recoloured and set on a dark ground.
+
+`quartz/static/icon.png` is whichever of the two icons is currently the favicon
+— a copy, not an original. See the note in CLAUDE.md.

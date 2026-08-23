@@ -235,6 +235,14 @@ footer {
 // component stylesheet that loads after this file — re-enable it and these rules
 // still win.
 #quartz-body > footer {
+  // base.scss sets box-sizing on `body` alone, and box-sizing does not inherit
+  // — there is no `*` reset in this codebase — so this element is content-box
+  // by default. base.scss also pins it to `min-width: 100%`, which means the
+  // 24px of side padding below was being added *outside* that width: the bar
+  // has always run 48px wider than the column it sits in. Nothing showed while
+  // its only child was a left-aligned sentence, but anything held against the
+  // right edge lands in the overflow and is clipped by the viewport.
+  box-sizing: border-box;
   margin: 0;
   padding: 12px 24px;
   opacity: 1;
@@ -254,6 +262,25 @@ footer {
   // empty, but an empty <ul> from any other footer would still reserve space.
   & > ul:empty {
     display: none;
+  }
+
+  // One centred line, so the bar reads as a closing mark on the page rather
+  // than as navigation. Flex rather than `text-align` because the `links` list
+  // is a second child when it is used, and it should centre alongside the
+  // sentence instead of stacking against an edge. `text-align` still handles
+  // the sentence's own wrap onto a second row on a phone.
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+  text-align: center;
+
+  & > ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 }
 
@@ -358,6 +385,11 @@ code {
 // This is scoped to the landing — articles scroll normally.
 body[data-slug="index"] {
   .page > #quartz-body {
+    // base.scss pads this 1rem on either side below 1200px. That is right for
+    // prose but wrong for the front door: on a phone it framed the hero, the
+    // count boxes and the footer rule in a strip of bare page background, so
+    // nothing reached the edge of the screen. Articles keep the padding.
+    padding: 0;
     min-height: 100vh;
     min-height: 100dvh;
     grid-template-rows: 1fr auto auto;

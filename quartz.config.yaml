@@ -283,23 +283,33 @@ plugins:
       priority: 30
   # Footer: the stock "Created with Quartz v5.0.0 © 2026" in the site's voice,
   # and without the copyright — Quartz is MIT-licensed and the notice the licence
-  # asks for lives in LICENSE.txt, so the credit here is courtesy, which the
-  # blessing pays in full.
+  # asks for lives in LICENSE.txt, so the credit here is courtesy. That courtesy
+  # is now paid on the colophon rather than in the bar itself, which is also
+  # where the heart tree's CC BY attribution lives.
   #
   # Other blessings, if this one wears thin:
-  #   Carved into the heart tree with Quartz v5.0.0
-  #   Grown from Quartz v5.0.0, watered by the Old Gods
-  #   Set down by candlelight with Quartz v5.0.0
-  #   Copied fair at the Citadel with Quartz v5.0.0
-  #   Sung into the roots by Quartz v5.0.0
-  #   Bound in weirwood and Quartz v5.0.0
-  #   Carried north by raven and Quartz v5.0.0
+  #   Set down by many hands, in candlelight.
+  #   Copied fair at the Citadel, by many hands.
+  #   Sung into the roots by many hands.
+  #   Bound in weirwood by many hands.
+  #   Carved into the heart tree by many hands.
   - source: ./plugins/weirwood-footer
     enabled: true
     options:
-      # The line runs `blessing` → Quartz link → `coda`.
-      blessing: "Warded by the Old Gods, raised with"
-      coda: "blessing."
+      # The line runs `blessing` → link → `coda`, and reads
+      # "Warded by the Old Gods, raised by many hands."
+      #
+      # The link is not decoration: the colophon carries the attribution the
+      # heart tree's CC BY licence requires, and this sentence is the only route
+      # to it from an ordinary page. Repoint or reword it freely, but it has to
+      # keep leading there — see the note in README.md. The href is used
+      # verbatim, so it is site-absolute.
+      blessing: "Warded by the Old Gods, raised by"
+      linkLabel: "many hands"
+      linkHref: "/colophon"
+      coda: "."
+      # Rendered as a list after the sentence. Empty: the one link this site has
+      # is in the sentence itself.
       links: {}
     layout:
       position: footer
