@@ -21,6 +21,11 @@
   --ww-muted: #9a8b73; // taglines, subtitles, captions
   --ww-edge: #3a2f24; // graph edges, quiet borders
   --ww-divider: #221c15; // hairline list dividers
+  // The colour the mobile browser paints its own bars with, sampled off the
+  // landing's `body` (see the "browser's own chrome" section). It is the hero
+  // gradient's own colour along its top edge, so the strip above the hero reads
+  // as part of the artwork. The hero fades out of it; the footer sits in it.
+  --ww-chrome: #2b1813;
 
   // Supplied by the darkmode plugin in stock Quartz; that plugin is off here,
   // so without this, form controls and scrollbars would render light.
@@ -480,4 +485,84 @@ body[data-slug="index"] .page[data-frame="full-width"] > #quartz-body .center.fu
   max-width: none;
   min-width: 100%;
   padding: 0;
+}
+
+// --- safe areas ------------------------------------------------------------
+// `viewport-fit=cover` in quartz/components/Head.tsx lets the page paint the
+// whole screen, including the strips behind the status bar, the notch and the
+// home indicator. That is what carries the hero artwork under the notch — but
+// it also ends the browser's habit of keeping content out of those strips, so
+// every piece of chrome that sits against an edge now has to inset itself.
+//
+// `env()` resolves to its fallback everywhere there is no inset to dodge, so
+// each of these is the old value plus zero on a desktop, a tablet, and a phone
+// without a notch. Nothing below changes any layout that is not on a device
+// with a cutout.
+//
+// Portrait gives top and bottom insets; landscape moves them to the sides,
+// which is why the horizontal ones are here even though the artwork is the
+// point of the change.
+
+// The search button rests in the top-right corner of the hero, which is exactly
+// where the status bar now falls.
+body[data-slug="index"] .page-header > header {
+  padding: calc(16px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px))
+    16px 20px;
+}
+
+// On an article the top bar is the first thing on the page, so it takes the
+// status bar's place directly.
+body:not([data-slug="index"]) .page-header > header {
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+}
+
+// The bar sits on the bottom edge, where the home indicator is. Its background
+// and its top rule still run the full width — only the text insets.
+#quartz-body > footer {
+  padding: 12px calc(24px + env(safe-area-inset-right, 0px))
+    calc(12px + env(safe-area-inset-bottom, 0px)) calc(24px + env(safe-area-inset-left, 0px));
+}
+
+// The reading column in landscape, where a cutout eats into one side.
+.page[data-frame="full-width"] > #quartz-body .center.full-width {
+  padding-left: calc(24px + env(safe-area-inset-left, 0px));
+  padding-right: calc(24px + env(safe-area-inset-right, 0px));
+}
+
+// Same for the count boxes. Padding on the row leaves the border-top spanning
+// the full width, so the rule above the boxes still reaches both edges.
+body[data-slug="index"] .ww-counts {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+// --- the browser's own chrome ----------------------------------------------
+// Safari 26 dropped `theme-color`: the meta tag still parses and the value is
+// ignored. What it does instead is sample a colour off the page — the
+// background-color of a position:fixed or sticky element near the top of the
+// viewport if there is one, otherwise the background-color of `body` — and tint
+// the strip behind the status bar with it.
+//
+// That sampling is why the strip above the hero was black: it was showing
+// `--light`, faithfully, because that is what body is painted.
+//
+// So body carries the chrome colour instead — but note what that means. body is
+// not hidden on this page: `.ww-counts` cells are transparent and the footer
+// paints no background of its own, so both were showing this colour straight
+// through and the whole lower third of the page warmed up with the strip. The
+// count boxes now paint `--light` themselves (see the landing plugin). The
+// footer deliberately does not: Safari tints its top strip and its bottom bar
+// with the SAME sampled colour, so leaving the footer in the chrome colour is
+// what lets the bar below it blend instead of stepping.
+//
+// A flat tint is the ceiling here. Safari samples one colour, so the tree and
+// the pinstripe cannot follow it up there; the hero fades out of this colour at
+// its top edge to soften the join. Only standalone/Home Screen mode would give
+// the page the real estate behind the status bar.
+//
+// Articles are deliberately left alone. Their body background is the right
+// answer already, and a warm strip over a near-black page would be a new
+// mismatch rather than a fixed one.
+body[data-slug="index"] {
+  background-color: var(--ww-chrome);
 }

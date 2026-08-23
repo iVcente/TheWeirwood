@@ -22,6 +22,17 @@ export const landingStyles = `
      deliberately wider and taller than the wordmark so the glow reaches the
      outer branch tips rather than pooling around the trunk. */
   background-image:
+    /* Topmost layer: the join with the browser's own status-bar strip. That
+       strip is painted one flat colour sampled off body, and the pinstripe
+       cannot be carried up into it, so the texture used to start abruptly at
+       the top edge of the hero. Opening on exactly that colour and fading out
+       of it over 88px lets the weave arrive gradually instead.
+
+       The far stop is the same colour at zero alpha rather than the transparent
+       keyword: they are equivalent in browsers that interpolate gradients in
+       premultiplied space, but spelling it out keeps the ramp honest anywhere
+       that does not. */
+    linear-gradient(to bottom, var(--ww-chrome) 0, rgba(43, 24, 19, 0) 88px),
     radial-gradient(
       150% 115% at 50% 20%,
       rgba(178, 58, 46, 0.2) 0%,
@@ -163,6 +174,11 @@ export const landingStyles = `
   display: flex;
   flex-wrap: wrap;
   border-top: 1px solid var(--lightgray);
+  /* The cells are transparent, so without this the row shows whatever body is
+     painted — and on the landing body carries the browser-chrome colour, which
+     warmed this whole block along with the status bar strip. The row paints the
+     page's own ground instead; only the strip and the footer keep the tint. */
+  background-color: var(--light);
 }
 
 a.ww-count-cell {

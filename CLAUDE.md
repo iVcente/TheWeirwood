@@ -74,6 +74,22 @@ arrays) describe files that do not exist here. Translate before following them.
   `condition`), plus the `layout.byPageType` section at the end of that file.
 - Custom styles: `quartz/styles/custom.scss`. Leave `variables.scss` and `base.scss`
   alone — they are core files that conflict on upgrade.
+- **One core file is knowingly modified:** `quartz/components/Head.tsx` carries two
+  additions, each marked with a `LOCAL MODIFICATION` comment. A Quartz upgrade will revert
+  them silently.
+  - `theme-color`, **landing only** — and note that **Safari 26 ignores it**: the tag
+    parses and the value is dropped. It is kept for Chrome and Android, which still
+    honour it. What actually tints the strip behind the status bar on current Safari is
+    the `body[data-slug="index"]` background-color in the "browser's own chrome" section
+    of `custom.scss`; keep the two values the same. Safari samples a fixed or sticky
+    element near the top of the viewport in preference to `body`, so introducing one on
+    the landing would silently take the tint over.
+  - `viewport-fit=cover` on the viewport meta. This does **not** put the hero under the
+    status bar in normal Safari browsing (that strip is unreachable; the top inset is 0
+    there). It earns its place in landscape, where the notch would otherwise bar one side,
+    and in standalone mode below. The `env(safe-area-inset-*)` rules in the "safe areas"
+    section of `custom.scss` exist only to hold chrome clear of the strips this flag opens
+    up — keep the two in step.
 
 ### Quartz v5 gotchas
 
@@ -109,6 +125,12 @@ Quartz version, independent of whatever visual design is in place.
   `icon-tree.png` (Lorc's dead wood, also the hero and the og-image) and `icon-face.png`
   (Cathelineau's carved face, the current favicon) — and `icon.png` is a copy of whichever
   is in use. Both are CC BY 3.0 and credited at `/colophon`; see README.md.
+- **A backtick in a local plugin's CSS silently deletes the component.** That CSS lives
+  in a JS template literal (`export const landingStyles = \`...\``), so a stray backtick —
+  including one inside a CSS comment, quoting a property name — closes the string early.
+  The build still reports success; it just emits two fewer files and the component vanishes
+  from the page with no error. Write property names in comments bare, and check
+  `grep -c '\`' <file>` returns 2.
 - **Favicons cache hard.** A changed icon can keep showing the old one — or a different
   project's, on `localhost:8080` — long after a normal reload. Confirm the file itself by
   opening `/static/icon.png` directly, then check the tab in a private window.

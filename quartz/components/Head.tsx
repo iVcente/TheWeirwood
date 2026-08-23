@@ -58,7 +58,25 @@ export default (() => {
           </>
         )}
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {/* LOCAL MODIFICATION (The Weirwood): viewport-fit=cover. Without it iOS
+            lays the page out inside the safe area and paints the strips behind the
+            status bar, the notch and the home indicator with the page background,
+            which reads as bands above and below the hero. With it the artwork runs
+            to the physical edges of the screen — and the browser stops holding
+            content clear of those strips, so the chrome insets itself with
+            env(safe-area-inset-*) in custom.scss. Re-apply after a Quartz upgrade;
+            see CLAUDE.md. */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        {/* LOCAL MODIFICATION (The Weirwood): theme-color, landing only. In ordinary
+            Safari browsing the strip behind the status bar belongs to the browser and
+            not to the page, so viewport-fit cannot reach it — in portrait the top
+            inset is simply 0. Safari fills that strip by sampling the page background
+            instead, which is the near-black --light token, and it reads as a band over
+            a hero whose gradient is far warmer. This is that gradient's own colour a
+            quarter of the way along its top edge, between #2e1914 at the centre and
+            #261712 in the corners. Every other page emits nothing and keeps the
+            sampled background, which already matches it. */}
+        {fileData.slug === "index" && <meta name="theme-color" content="#2b1813" />}
 
         <meta name="og:site_name" content={cfg.pageTitle}></meta>
         <meta property="og:title" content={title} />
