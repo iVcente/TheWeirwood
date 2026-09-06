@@ -170,9 +170,14 @@ export const landingStyles = `
 }
 
 /* --- count boxes: the primary navigation ------------------------------- */
+/* A grid rather than a wrapping flex row. Ten sections at a 160px flex-basis
+   wrapped ragged — nine across and one orphan on a wide monitor, worse on a
+   laptop. Five explicit columns give 10 a clean 5x2 and mobile a clean 2x5.
+   The column count and the nth-child selectors below are one decision: change
+   one and the other two are wrong. */
 .ww-counts {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   border-top: 1px solid var(--lightgray);
   /* The cells are transparent, so without this the row shows whatever body is
      painted — and on the landing body carries the browser-chrome colour, which
@@ -190,7 +195,6 @@ a.ww-count-cell {
      and the 2x2 grid became a 1x4 column tall enough to push the footer off
      the screen. */
   box-sizing: border-box;
-  flex: 1 1 160px;
   padding: 18px 8px;
   text-align: center;
   border-right: 1px solid var(--ww-divider);
@@ -199,8 +203,17 @@ a.ww-count-cell {
   transition: background-color 0.2s ease;
 }
 
+/* 5n is the last column; n+6 is every cell below the first row, which is what
+   rules the two rows apart. n+6 holds for a third row too, so this survives an
+   eleventh section — only the column count is fixed. :last-child covers the
+   dangling edge when a final row comes up short of five. */
+a.ww-count-cell:nth-child(5n),
 a.ww-count-cell:last-child {
   border-right: none;
+}
+
+a.ww-count-cell:nth-child(n + 6) {
+  border-top: 1px solid var(--ww-divider);
 }
 
 a.ww-count-cell:hover {
@@ -251,12 +264,25 @@ a.ww-count-cell:hover .ww-count-label {
     grid-auto-flow: row;
   }
 
-  a.ww-count-cell {
-    flex-basis: 50%;
+  .ww-counts {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  a.ww-count-cell:nth-child(2n) {
+  /* Restate the two selectors above for two columns. The 5n rule has to be
+     undone explicitly — cell 5 sits in column 1 here and wants its divider
+     back — and 2n follows it so cell 10, the true last column, still loses
+     one. n+3 is a superset of n+6, so the first-row test needs no undoing. */
+  a.ww-count-cell:nth-child(5n) {
+    border-right: 1px solid var(--ww-divider);
+  }
+
+  a.ww-count-cell:nth-child(2n),
+  a.ww-count-cell:last-child {
     border-right: none;
+  }
+
+  a.ww-count-cell:nth-child(n + 3) {
+    border-top: 1px solid var(--ww-divider);
   }
 }
 `
