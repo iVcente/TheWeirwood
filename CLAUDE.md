@@ -26,12 +26,38 @@ code changes needed.**
 ```
 content/
 ├─ index.md            # landing page
-├─ characters/
-├─ events/
-├─ houses/
-├─ places/
+├─ colophon.md         # attribution; the footer link must keep reaching it
+├─ characters/         # people
+├─ houses/             # lineages
+├─ places/             # castles, cities, regions
+├─ events/             # wars, uprisings, councils
+├─ beasts/             # dragons and every other named creature
+├─ orders/             # bodies under a rule or office
+├─ relics/             # made things: thrones, blades, crowns
+├─ faiths/             # what is believed
+├─ mysteries/          # magic, prophecy, the unweighable
+├─ customs/            # rites, laws, observances
 └─ attachments/        # images (optimized to WebP)
 ```
+
+Each folder carries an `index.md` whose prose heads its folder page. Folder name,
+`type:` value and the landing count-box label are deliberately **the same word** —
+one thing to change, and nothing to remember about where the label comes from. The
+label falls out of the directory name automatically, because `weirwood-landing`
+ignores an index title that merely restates it.
+
+Two boundaries that come up on nearly every article:
+
+- **Faiths vs Orders.** A faith is what is believed; an order is a body of people
+  under a rule or an office. The Faith of the Seven is a faith, the Warrior's Sons
+  are an order. Something that is both — the Faceless Men — files as an order and
+  links to the faith.
+- **Events vs Customs.** A named occasion is an event; the institution behind it is
+  a custom. Maegor's trial in 42 AC is part of an event; trial by seven is a custom.
+
+Folders are cheap to change: `markdownLinkResolution: shortest` means moving a file
+between them never breaks a `[[wikilink]]`. Prefer moving an article to inventing a
+folder for it — a new folder should not be born until it has about three articles.
 
 ### Frontmatter fields
 
@@ -39,7 +65,8 @@ content/
 ---
 title: "..."
 aliases: ["..."] # alternate names → searchable and linkable
-type: character # character | event | house | place | concept
+type: character # one per folder: character | house | place | event | beast
+#              | order | relic | faith | mystery | custom
 house: "..." # optional; omit if N/A
 tags: ["..."] # cross-cutting views
 era: "..." # in-world period; use this for ASOIAF dates too (e.g. "48 AC")
