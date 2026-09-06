@@ -1,6 +1,5 @@
 ---
 title: "The Faith Militant Uprising"
-aliases: ["Faith Militant Uprising"]
 type: event
 tags: ["religion", "civil-war"]
 era: "Reigns of Aenys I and Maegor I (41–48 AC)"

@@ -1,6 +1,5 @@
 ---
 title: "The Iron Throne"
-aliases: ["Iron Throne"]
 type: relic
 tags: []
 era: "Aegon's Conquest to present"

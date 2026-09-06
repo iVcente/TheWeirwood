@@ -63,8 +63,7 @@ folder for it — a new folder should not be born until it has about three artic
 
 ```yaml
 ---
-title: "..."
-aliases: ["..."] # alternate names → searchable and linkable
+title: "..." # the one name for this page; wikilinks must use it verbatim
 type: character # one per folder: character | house | place | event | beast
 #              | order | relic | faith | mystery | custom
 house: "..." # optional; omit if N/A
@@ -78,8 +77,21 @@ status: stub # stub | draft | complete
 ### Linking conventions
 
 - Link any entity inline with a wikilink: `[[Balerion]]`.
-- Alias display text without breaking the link: `[[Balerion|the Black Dread]]`.
+- Change the words on the page without changing the target: `[[Balerion|the Black
+  Dread]]`. The left side is always the article's exact title; the right side is
+  whatever the sentence needs.
 - A wikilink to a not-yet-written page becomes a **placeholder** (good for planning).
+- **There is no `aliases:` field, deliberately.** It bought one thing here — a short
+  redirect URL — and cost two. Aliases are absent from `contentIndex.json`
+  (`content, filePath, links, slug, tags, title`), so they never fed search; and a
+  wikilink written by alias resolves to the redirect stub's slug, which is not an
+  indexed page, so the graph drops the edge and the backlink with it. The link still
+  renders and still clicks through, which is what makes it dangerous: the page looks
+  correctly wired and quietly is not, on a site whose whole design is the graph. The
+  `[[Title|display text]]` form gives the same words with the edge intact.
+  `@quartz-community/alias-redirects` stays enabled — with no aliases it emits
+  nothing, and it also handles case-preserving redirects on the case-sensitive
+  filesystem the CI builds run on.
 - The **graph** is the network of wikilinks; **backlinks** are that same data shown as a
   "mentioned in" list on each page. Nothing to hand-maintain — just link as you write.
 - Prefer many small linked articles over few large ones.

@@ -1,6 +1,5 @@
 ---
 title: "${FOAM_TITLE}"
-aliases: []
 type: custom
 tags: []
 era: ""

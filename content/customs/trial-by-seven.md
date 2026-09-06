@@ -1,6 +1,5 @@
 ---
 title: "Trial by Seven"
-aliases: ["Trial of Seven"]
 type: custom
 tags: ["religion"]
 era: "Andal invasion to present"

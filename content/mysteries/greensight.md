@@ -1,6 +1,5 @@
 ---
 title: "Greensight"
-aliases: ["Greenseer", "Greenseers"]
 type: mystery
 tags: []
 era: "Age of Heroes to present"

@@ -1,6 +1,5 @@
 ---
 title: "House Targaryen"
-aliases: ["The Targaryens", "House Targaryen of King's Landing"]
 type: house
 tags: ["dragonriders", "kings"]
 era: "Pre-Doom Valyria through 283 AC"

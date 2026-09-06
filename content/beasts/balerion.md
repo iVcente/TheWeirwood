@@ -1,6 +1,5 @@
 ---
 title: "Balerion"
-aliases: ["The Black Dread", "Balerion the Black Dread"]
 type: beast
 tags: ["dragons"]
 era: "Pre-Doom Valyria to 94 AC"

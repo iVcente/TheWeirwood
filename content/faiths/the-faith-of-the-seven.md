@@ -1,6 +1,5 @@
 ---
 title: "The Faith of the Seven"
-aliases: ["The Faith", "Faith of the Seven"]
 type: faith
 tags: ["religion"]
 era: "Andal invasion to present"

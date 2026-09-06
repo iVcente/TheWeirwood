@@ -1,6 +1,5 @@
 ---
 title: "Maegor I Targaryen"
-aliases: ["Maegor the Cruel", "Maegor"]
 type: character
 house: "Targaryen"
 tags: ["kings", "dragonriders"]

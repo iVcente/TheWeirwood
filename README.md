@@ -17,17 +17,22 @@ Node 22 is pinned in `.nvmrc` and `.node-version`. Run `nvm use` if you have nvm
 
 **Preferred (Foam):** open the repo in VSCode with the recommended Foam
 extension installed. Command Palette → **Foam: Create New Note From Template**
-→ pick `character` or `event` → enter a title. The new note is created with
+→ pick the template matching the folder it belongs in (`character`, `house`,
+`place`, `event`, `beast`, `order`, `relic`, `faith`, `mystery`, `custom`) → enter
+a title. The new note is created with
 frontmatter pre-filled. Move it into the right subfolder under `content/`,
 write the body, cross-link with `[[wikilinks]]`.
 
-**Manual:** create a `.md` file under `content/{characters,events,houses,places}/`
+**Manual:** create a `.md` file under one of the ten folders in `content/`
 using lowercase-hyphenated slugs (e.g., `content/characters/maegor-i-targaryen.md`).
 Start with the frontmatter block — see `CLAUDE.md` for the schema.
 
-**Linking:** `[[Maegor I Targaryen]]` links to any article with that title or
-matching slug. Pipe-alias to change display text: `[[Balerion|the Black Dread]]`.
-A wikilink to a not-yet-written page becomes a *placeholder* — useful for planning.
+**Linking:** `[[Maegor I Targaryen]]` links to the article with that exact title.
+Use the pipe to change the words without changing the target:
+`[[Balerion|the Black Dread]]`. A wikilink to a not-yet-written page becomes a
+*placeholder* — useful for planning. Articles carry no `aliases:` field; linking by
+anything but the real title silently drops the page out of the graph, which
+`CLAUDE.md` explains.
 
 ## Images
 

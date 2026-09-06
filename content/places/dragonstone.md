@@ -1,6 +1,5 @@
 ---
 title: "Dragonstone"
-aliases: []
 type: place
 tags: ["castles"]
 era: "Pre-Conquest to present"

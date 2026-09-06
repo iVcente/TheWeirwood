@@ -1,6 +1,5 @@
 ---
 title: "The Faith Militant"
-aliases: ["Faith Militant", "The Warrior's Sons", "The Poor Fellows"]
 type: order
 tags: ["religion"]
 era: "Andal invasion to 48 AC"
