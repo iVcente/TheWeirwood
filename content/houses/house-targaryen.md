@@ -1,6 +1,8 @@
 ---
 title: "House Targaryen"
 type: house
+words: "Fire and Blood"
+seat: "Dragonstone"
 tags: ["dragonriders", "kings"]
 era: "Pre-Doom Valyria through 283 AC"
 book: "Fire & Blood"

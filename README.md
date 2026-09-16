@@ -1,6 +1,6 @@
 # The Weirwood
 
-A personal, story-focused *A Song of Ice and Fire* / *Fire & Blood* lore wiki
+A personal, story-focused _A Song of Ice and Fire_ / _Fire & Blood_ lore wiki
 by Vicente Danzmann. Plain Markdown → [Quartz](https://quartz.jzhao.xyz) →
 GitHub Pages. Live at **[theweirwood.boo](https://theweirwood.boo)**.
 
@@ -27,10 +27,17 @@ write the body, cross-link with `[[wikilinks]]`.
 using lowercase-hyphenated slugs (e.g., `content/characters/maegor-i-targaryen.md`).
 Start with the frontmatter block — see `CLAUDE.md` for the schema.
 
+**The frontmatter is the page furniture.** Each key you fill in becomes one of
+the boxes under the title; leave a key out and there is simply no box for it.
+`words:` sets the italic motto under the title, `tags:` become the chips beside
+it, and `status: stub` raises the _stub_ badge. Anything an entry needs that no
+other page shares goes in `facts:`, an ordered map that adds one box per key.
+No component needs editing to add a box.
+
 **Linking:** `[[Maegor I Targaryen]]` links to the article with that exact title.
 Use the pipe to change the words without changing the target:
 `[[Balerion|the Black Dread]]`. A wikilink to a not-yet-written page becomes a
-*placeholder* — useful for planning. Articles carry no `aliases:` field; linking by
+_placeholder_ — useful for planning. Articles carry no `aliases:` field; linking by
 anything but the real title silently drops the page out of the graph, which
 `CLAUDE.md` explains.
 

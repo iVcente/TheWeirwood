@@ -21,6 +21,17 @@
   --ww-muted: #9a8b73; // taglines, subtitles, captions
   --ww-edge: #3a2f24; // graph edges, quiet borders
   --ww-divider: #221c15; // hairline list dividers
+  --ww-glow-edge: #4a231d; // the lit border on a greensight panel or a live tile
+
+  // Two measures, because the page has two jobs. Bands (the top bar, the
+  // section hero, the roots strips) run edge to edge and hold their contents in
+  // one of these; prose holds the narrower one directly. `--ww-band` and
+  // `--ww-band-pad` are what `.ww-band-inner` reads, and weirwood-article
+  // re-points them at the reading measure for the blocks above an entry, so
+  // its boxes and its roots band line up with the paragraph beneath them.
+  --ww-measure: 780px; // the reading column, about 68ch at 18px
+  --ww-band: 1120px; // the chrome column: bar, section hero, entry grid
+  --ww-band-pad: 40px;
   // The colour the mobile browser paints its own bars with, sampled off the
   // landing's `body` (see the "browser's own chrome" section). It is the hero
   // gradient's own colour along its top edge, so the strip above the hero reads
@@ -46,38 +57,74 @@ body {
 
 // --- the broadsheet --------------------------------------------------------
 // Every page runs in the full-width frame (layout.byPageType in
-// quartz.config.yaml), so the centre column is the whole page. Hold the measure
-// here instead of in a sidebar grid.
+// quartz.config.yaml), so the centre column is the whole page.
+//
+// The design is bands: the top bar, the section hero, the title block and the
+// roots strips all run edge to edge and paint their own background, with only
+// their contents measured. So the column itself is deliberately NOT capped —
+// capping it is what would strand a band's background in mid-air on a wide
+// screen. The measure moves inside, onto `.ww-band-inner` and onto the prose.
 
 // base.scss caps `.page` at $desktop + 300px — 1500px — a holdover from the
 // three-column layout, where that width had to hold two sidebars plus the
-// measure. Here the measure is held on `.center.full-width` below instead, so
-// the only thing the cap still does is stop the full-bleed chrome dead at
-// 1500px: on any viewport wider than that, the landing's hero and count boxes
-// and the footer rule on every page end in mid-air with bare background either
-// side. Let the frame reach the viewport edge — the reading column is set
-// independently and does not move.
+// measure. The only thing the cap still does here is stop the bands dead at
+// 1500px. Let the frame reach the viewport edge.
 .page {
   max-width: none;
 }
 
-// base.scss pins the full-width frame's column to `max-width: 100%` AND
-// `min-width: 100%` — the min-width is what actually forces the issue, so both
-// have to be undone or the measure below is silently ignored.
+// The full-width frame's grid is `grid-template-columns: auto`, and an auto
+// track is sized by its contents — base.scss's `min-width: 100%` on this column
+// is the only thing that makes the track fill the page. It has to STAY. Setting
+// it to 0 leaves every band stranded in a content-width column in the middle of
+// the viewport, with bare background either side, on every page type at once.
+//
+// Only the max-width is lifted, so nothing inside is capped before it can set
+// its own measure.
 .page[data-frame="full-width"] > #quartz-body .center.full-width {
-  max-width: 780px;
-  min-width: 0;
-  margin: 0 auto;
-  padding: 0 24px;
+  max-width: none;
+  min-width: 100%;
+  padding: 0;
 }
 
+// The prose takes the reading measure directly; it is the one thing on the page
+// that is not inside a band.
 .page > #quartz-body .center > article {
-  padding: 28px 0 36px;
+  box-sizing: border-box;
+  max-width: var(--ww-measure);
+  margin: 0 auto;
+  padding: 30px 24px 40px;
+}
+
+// The frame draws a rule between the body and the page footer. The footer band
+// carries its own top border, so this only ever doubled it.
+.center > hr {
+  display: none;
+}
+
+// Nothing is placed in this slot on any page type here, but base.scss gives it
+// `margin-top: 1rem` regardless — so an empty div was holding a strip of page
+// background open above the footer. On a section index that strip fell between
+// the roots panel and the footer, which are the same colour and are meant to
+// close the page as one block.
+.page-footer:empty {
+  display: none;
+}
+
+// The other half of that gap, and the harder one to see: `.center` and `footer`
+// are the two row items of the #quartz-body grid, and base.scss gives that grid
+// a 5px row-gap. Nothing paints in it, so it shows as a hairline of page
+// background above the footer rule on EVERY page — most visibly on a section
+// index, where the roots panel and the footer are the same colour and should
+// close the page as one block. The landing used to zero this on its own; it was
+// never a landing problem.
+.page > #quartz-body {
+  row-gap: 0;
 }
 
 // base.scss puts 6rem of margin above .page-header. In the three-column layout
 // that cleared the sidebars; here it reads as a tall empty band before anything
-// starts. The top bar and the hero both belong near the top edge.
+// starts. The bar and the hero both belong on the top edge.
 .page > #quartz-body .page-header {
   margin-top: 0;
 }
@@ -85,24 +132,46 @@ body {
 // The header block above the prose is centred; the prose itself is not.
 .page-header {
   text-align: center;
-  padding-top: 12px;
+  padding-top: 0;
 }
 
 // --- the top bar -----------------------------------------------------------
-// With no sidebars this slim strip is the only persistent navigation: the site
-// title returns home and search stays reachable from every page.
+// With no sidebars and no breadcrumbs, this strip is the only persistent
+// navigation, and it is what tells a reader where they are: the bar names the
+// section, the page names the page. The wordmark and the section come from
+// ./plugins/weirwood-chrome; the search button is Quartz's own, sitting beside
+// the greensight button as the bar's second child.
+//
+// It runs edge to edge and insets its own contents to the chrome measure, which
+// is why the padding is a max() rather than a fixed 40px: below 1120px the
+// band fills the viewport and the base padding applies, and above it the extra
+// half-difference keeps the wordmark in line with everything below.
 
 .page-header > header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 14px 0 16px;
-  margin-bottom: 8px;
+  gap: 8px;
+  padding-block: 13px;
+  padding-left: max(
+    calc(var(--ww-band-pad) + env(safe-area-inset-left, 0px)),
+    calc((100% - var(--ww-band)) / 2 + var(--ww-band-pad))
+  );
+  padding-right: max(
+    calc(var(--ww-band-pad) + env(safe-area-inset-right, 0px)),
+    calc((100% - var(--ww-band)) / 2 + var(--ww-band-pad))
+  );
+  margin-bottom: 0;
+  background: var(--ww-inset);
   border-bottom: 1px solid var(--lightgray);
+  // The red hairline under the bar. An inset shadow rather than a second
+  // border, so the bar keeps one border-box and the two lines sit flush.
+  box-shadow: inset 0 -1px 0 var(--secondary);
   text-align: left;
 }
 
+// Quartz's own title is dropped from the content and folder page types — the
+// wordmark in weirwood-chrome carries the tree mark beside it, which this
+// cannot. It is still the title on a tag page, so it keeps its styling.
 .page-title {
   margin: 0;
   font-family: var(--headerFont);
@@ -125,25 +194,37 @@ body {
 // ::-webkit-scrollbar (or scrollbar-width) opts Chrome out of overlay
 // scrollbars and gives it a classic, permanently visible one. Leaving it alone
 // keeps the OS behaviour, which already hides the bar until it is used — the
-// script in weirwood-article avoids scrolling the preview so it never flashes.
+// script in weirwood-chrome avoids scrolling the preview so it never flashes.
 
-// Icon only. The button keeps its aria-label, so the word is still announced
-// to screen readers even though it is not drawn.
+// Icon only, and the same 32px shell as the greensight button it sits beside —
+// see .ww-icon-button in weirwood-chrome, which the two share by hand rather
+// than by class, because this markup belongs to Quartz's search plugin. The
+// button keeps its aria-label, so the word is still announced to screen readers
+// even though it is not drawn.
 .search > .search-button {
-  background-color: transparent;
-  border: 1px solid var(--ww-edge);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background-color: var(--ww-panel);
+  border: 1px solid var(--lightgray);
   border-radius: 4px;
-  height: auto;
-  padding: 7px;
+  padding: 0;
 
   & > p {
     display: none;
   }
 
   & > svg {
-    width: 16px;
-    min-width: 16px;
+    width: 15px;
+    min-width: 15px;
     margin: 0;
+  }
+
+  .search-path {
+    stroke: var(--secondary);
   }
 
   &:hover {
@@ -205,35 +286,6 @@ article > h4 {
   color: #e0d3b8;
 }
 
-// Mono is the ledger voice: it carries chrome and metadata, not just code.
-.breadcrumb-container,
-footer {
-  font-family: var(--codeFont);
-}
-
-.breadcrumb-container {
-  justify-content: center;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gray);
-  margin-bottom: 16px;
-
-  a {
-    color: var(--gray);
-    font-weight: 400;
-    background-color: transparent;
-
-    &:hover {
-      color: var(--tertiary);
-    }
-  }
-
-  .breadcrumb-element:last-of-type a {
-    color: #8a7b67;
-  }
-}
-
 // The bar is rendered by ./plugins/weirwood-footer, which ships no stylesheet of
 // its own; everything it looks like is here. The id selector is kept because the
 // stock @quartz-community/footer emitted a competing `footer {}` block from a
@@ -249,13 +301,22 @@ footer {
   // right edge lands in the overflow and is clipped by the viewport.
   box-sizing: border-box;
   margin: 0;
+  // Keep in step with the safe-area rule near the foot of this file: that one
+  // re-declares the whole `padding` shorthand and loads later, so it is the one
+  // that actually ships. A different value here is silently inert.
   padding: 12px 24px;
   opacity: 1;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  // Set in the case the config writes it: the blessing is a sentence, and
-  // small caps made it read as a system notice rather than as the site's own
-  // voice. The breadcrumb above is still uppercased — that one is chrome.
+  // The blessing is a sentence in the site's own voice, so it is set in the
+  // maester's hand rather than the ledger's mono. Mono chrome is uppercase and
+  // letterspaced; a closing line that reads as a system notice is not what this
+  // bar is for.
+  //
+  // Upright, not the handoff's italic: EB Garamond's italic is a genuine cursive
+  // rather than a slanted roman, and at 16px on this background it costs more
+  // legibility than the flourish is worth.
+  font-family: var(--bodyFont);
+  font-size: 14px;
+  letter-spacing: 0;
   color: var(--gray);
   border-top: 1px solid var(--lightgray);
 
@@ -287,9 +348,37 @@ footer {
     margin: 0;
     padding: 0;
   }
+
+  a {
+    color: #8a7b67;
+    background-color: transparent;
+
+    &:hover {
+      color: var(--tertiary);
+    }
+  }
+}
+
+// One bar, one colour, everywhere: the warm chrome the front door shows.
+//
+// The landing used to reach this colour by painting nothing and letting its own
+// body background through, while every other page painted `--ww-panel` and came
+// out a colder, near-black bar. Painting it explicitly changes nothing on the
+// landing — same value, so Safari's sampled bottom bar still blends there (see
+// the note at the foot of this file) — and brings every other page into line.
+#quartz-body > footer {
+  background: var(--ww-chrome);
 }
 
 // --- prose -----------------------------------------------------------------
+
+// The measure and the leading are set on `article` and `body`; this is the last
+// piece of the reading rhythm — no line left short and alone at the foot of a
+// paragraph. Scoped to the prose so it never fights the balanced title above.
+.center > article p,
+.center > article li {
+  text-wrap: pretty;
+}
 
 article a.internal {
   color: var(--tertiary);
@@ -299,17 +388,20 @@ article a.internal {
   }
 }
 
-// House words and other lead-ins: an italic line on its own after the title.
-article > p:first-of-type > em:only-child {
-  font-family: var(--bodyFont);
-  font-style: italic;
-  font-size: 18px;
-  color: var(--ww-muted);
-}
-
-// The entry opens with a carved initial. Articles only — the landing's prose
-// sits under the hero, where a drop cap would fight the wordmark.
-body:not([data-slug="index"]) article > p:first-of-type::first-letter {
+// The entry opens with a carved initial. Entries only — the landing's prose
+// sits under the hero, where a drop cap would fight the wordmark, and a folder
+// index's prose is set as the hero's own italic description.
+//
+// The `.markdown-preview-view` step is load-bearing and easy to lose: Quartz
+// wraps the rendered Markdown in that div, so `article > p` is a child
+// combinator that matches nothing. Both branches are kept because a page body
+// that is not the Markdown renderer's puts its paragraphs directly in article.
+body:not([data-slug="index"])
+  .center
+  > article
+  > .markdown-preview-view
+  > p:first-of-type::first-letter,
+body:not([data-slug="index"]) .center > article > p:first-of-type::first-letter {
   font-family: var(--headerFont);
   font-size: 56px;
   line-height: 0.78;
@@ -345,11 +437,92 @@ code {
   font-size: 0.85em;
 }
 
-// The roots band spans the full page while the prose keeps its measure; padding
-// is re-added inside so its contents stay aligned with the column.
-.ww-roots {
-  margin-inline: -24px;
-  padding-inline: 24px;
+// --- no dates --------------------------------------------------------------
+// "No dates anywhere on the site." The archive is in-world; a modified
+// timestamp on a chronicle entry breaks that, and a section index is sorted by
+// name rather than recency for the same reason.
+//
+// @quartz-community/content-meta is disabled, which covers entries, and the
+// card grid and roots strip are this site's own markup. The one place a date
+// still reached a page was Quartz's PageList — which the tag pages are built
+// from, and which is the only stock listing left in the layout.
+//
+// created-modified-date stays ENABLED on purpose: the RSS feed sorts and stamps
+// its items from it, and a feed without dates is a broken feed. This hides the
+// date on the page, it does not stop it being computed.
+//
+// The listing row is a grid whose FIRST column is the date. Hiding just the
+// cell is not enough: the remaining child is then auto-placed into that first
+// track, which is `fit-content(8em)`, and the entry title gets squashed to
+// about eight characters. So the row stops being a grid at all.
+//
+// The specificity here is load-bearing, not defensive. index.css is linked
+// BEFORE the component stylesheets, so a rule of equal weight to
+// `.section-li > .section` loses the cascade outright and does nothing at all —
+// which is how the first version of this went in looking correct and changing
+// nothing. The id qualifier is what wins it.
+//
+// Popovers need their own selector because they are appended to `document.body`
+// and live OUTSIDE `#quartz-body`, so the first rule cannot reach them.
+#quartz-body .section-li > .section,
+body .popover .section {
+  display: block;
+}
+
+// The date cell itself, in both places. Nothing else declares `display` on it,
+// so this one wins on its own.
+.section-li > .section > .meta {
+  display: none;
+}
+
+// --- previews --------------------------------------------------------------
+// A popover collects every `.popover-hint` on the target page and stacks them
+// into a small floating card. On this site that is the whole block above the
+// prose: the title block with its glow and its 200px watermark, the frontmatter
+// boxes, and the roots band — which carries a greensight panel and, on a folder,
+// ten section tiles. All of it would arrive in a card a few hundred pixels wide.
+//
+// Keep the title and the words, since they say what is being previewed, and
+// drop the rest. The prose below them is the point of the preview.
+.popover {
+  .ww-title-block {
+    padding: 0 0 8px;
+    background-image: none;
+    text-align: left;
+  }
+
+  .ww-title-watermark,
+  .ww-section-watermark,
+  .ww-meta,
+  .ww-roots,
+  .ww-entries,
+  .ww-chips {
+    display: none;
+  }
+
+  .ww-band-inner {
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  .ww-title {
+    font-size: 22px;
+  }
+
+  .ww-section-hero {
+    padding: 0 0 8px;
+    background-image: none;
+    text-align: left;
+  }
+
+  .ww-section-title {
+    font-size: 22px;
+  }
+
+  .ww-section-rule,
+  .ww-section-count {
+    display: none;
+  }
 }
 
 // --- greensight overlay ----------------------------------------------------
@@ -398,10 +571,6 @@ body[data-slug="index"] {
     min-height: 100vh;
     min-height: 100dvh;
     grid-template-rows: 1fr auto auto;
-    // The grid carries a 5px gap, and the empty middle row means two of them
-    // land between the count boxes and the footer. Closing it lets the cell
-    // dividers run all the way down to the footer rule.
-    row-gap: 0;
   }
 
   // The chain from the grid cell down to the hero, so `flex: 1` can reach it.
@@ -429,11 +598,6 @@ body[data-slug="index"] {
     justify-content: center;
   }
 
-  // Empty, but its 1rem top margin would still show as a gap.
-  .page-footer:empty {
-    display: none;
-  }
-
   // The hero and the count boxes run edge to edge; only the prose beneath them
   // takes the reading measure (see the .center override below).
   .page-header {
@@ -443,7 +607,9 @@ body[data-slug="index"] {
 
   // No bar across the front door: the artwork starts at the very top of the
   // viewport. The header lifts out of the flow entirely so the search button is
-  // left resting in the corner, over the canopy.
+  // left resting in the corner, over the canopy. weirwood-chrome renders
+  // nothing here — the wordmark below already says where you are — so all that
+  // is left in it is search.
   .page-header > header {
     position: absolute;
     top: 0;
@@ -452,10 +618,12 @@ body[data-slug="index"] {
     justify-content: flex-end;
     padding: 16px 20px;
     margin: 0;
+    background: transparent;
     border-bottom: none;
+    box-shadow: none;
   }
 
-  // The site title is dropped from this page type entirely (see
+  // The bar is dropped from this page type entirely (see
   // layout.byPageType.landing) — you are already home, and the wordmark below
   // says the same thing. The search button keeps its ordinary appearance.
 
@@ -465,26 +633,10 @@ body[data-slug="index"] {
   //
   // The `.page > #quartz-body` prefix is load-bearing: the general article rule
   // is qualified by an id, so a shorter selector here loses the cascade and its
-  // 28px/36px padding survives as a gap under the count boxes.
+  // vertical padding survives as a gap under the count boxes.
   .page > #quartz-body .center > article {
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 0 24px;
+    padding-block: 0;
   }
-
-  // The frame draws a rule between the body and the page footer. With no body
-  // it would hang under the count boxes as a stray line.
-  .center > hr {
-    display: none;
-  }
-}
-
-// The landing's column is the full viewport; the measure is applied to its
-// prose instead (above).
-body[data-slug="index"] .page[data-frame="full-width"] > #quartz-body .center.full-width {
-  max-width: none;
-  min-width: 100%;
-  padding: 0;
 }
 
 // --- safe areas ------------------------------------------------------------
@@ -510,10 +662,10 @@ body[data-slug="index"] .page-header > header {
     16px 20px;
 }
 
-// On an article the top bar is the first thing on the page, so it takes the
-// status bar's place directly.
+// On an entry or a section index the top bar is the first thing on the page, so
+// it takes the status bar's place directly. Keep the 13px in step with the bar.
 body:not([data-slug="index"]) .page-header > header {
-  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+  padding-top: calc(13px + env(safe-area-inset-top, 0px));
 }
 
 // The bar sits on the bottom edge, where the home indicator is. Its background
@@ -523,8 +675,10 @@ body:not([data-slug="index"]) .page-header > header {
     calc(12px + env(safe-area-inset-bottom, 0px)) calc(24px + env(safe-area-inset-left, 0px));
 }
 
-// The reading column in landscape, where a cutout eats into one side.
-.page[data-frame="full-width"] > #quartz-body .center.full-width {
+// The reading column in landscape, where a cutout eats into one side. The bands
+// around it inset themselves in weirwood-chrome (.ww-band-inner) and in the top
+// bar's padding above; this is the prose, which is not in a band.
+.page > #quartz-body .center > article {
   padding-left: calc(24px + env(safe-area-inset-left, 0px));
   padding-right: calc(24px + env(safe-area-inset-right, 0px));
 }
@@ -548,12 +702,13 @@ body[data-slug="index"] .ww-counts {
 //
 // So body carries the chrome colour instead — but note what that means. body is
 // not hidden on this page: `.ww-counts` cells are transparent and the footer
-// paints no background of its own, so both were showing this colour straight
+// painted no background of its own, so both were showing this colour straight
 // through and the whole lower third of the page warmed up with the strip. The
 // count boxes now paint `--light` themselves (see the landing plugin). The
-// footer deliberately does not: Safari tints its top strip and its bottom bar
-// with the SAME sampled colour, so leaving the footer in the chrome colour is
-// what lets the bar below it blend instead of stepping.
+// footer is painted this same colour explicitly, sitewide: Safari tints its top
+// strip and its bottom bar with the SAME sampled colour, so the bar has to stay
+// in the chrome colour here or the strip below it steps. `--ww-chrome` is the
+// single source for both — keep them identical.
 //
 // A flat tint is the ceiling here. Safari samples one colour, so the tree and
 // the pinstripe cannot follow it up there; the hero fades out of this colour at

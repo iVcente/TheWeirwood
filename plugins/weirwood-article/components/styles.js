@@ -1,17 +1,85 @@
-// Article furniture: the frontmatter metadata boxes and the connections band.
-// Surface tokens (--ww-*) are defined in quartz/styles/custom.scss.
+// Article furniture: the title block, the frontmatter boxes and the connections
+// band. The bands, chips and greensight panel these sit in are shared with the
+// folder page and styled by weirwood-chrome, whose stylesheet is emitted on
+// every page; only what is particular to an entry is here.
+//
+// Keep this file at exactly two backticks — see the note in
+// weirwood-chrome/components/styles.js for what a third one costs.
 export const articleStyles = `
+/* The reading measure, narrower than the chrome's. Set on the wrapper so every
+   band inside it — title block, boxes, roots — lines up with the prose. */
 .ww-article-head {
-  margin: 0;
+  --ww-band: var(--ww-measure);
+  --ww-band-pad: 24px;
 }
 
-/* --- metadata boxes ----------------------------------------------------- */
+/* --- title block -------------------------------------------------------- */
+.ww-title-block {
+  position: relative;
+  overflow: hidden;
+  padding: 40px 0 34px;
+  text-align: center;
+  /* Softer than the section hero's: an entry is a page in the chronicle, not
+     the front of a chapter. */
+  background-image: radial-gradient(
+    70% 90% at 50% 18%,
+    rgba(178, 58, 46, 0.13) 0%,
+    rgba(178, 58, 46, 0.04) 52%,
+    transparent 82%
+  );
+}
+
+.ww-title-watermark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -52%);
+  width: 200px;
+  height: 200px;
+  color: var(--secondary);
+  opacity: 0.12;
+  filter: drop-shadow(0 0 34px rgba(178, 58, 46, 0.5));
+  pointer-events: none;
+}
+
+.ww-title-inner {
+  position: relative;
+}
+
+.ww-title {
+  font-family: var(--headerFont);
+  font-weight: 600;
+  font-size: 36px;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  color: var(--dark);
+  margin: 0;
+  text-wrap: balance;
+}
+
+/* House words and other mottoes, from the frontmatter key of the same name. */
+.ww-words {
+  font-family: var(--bodyFont);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ww-muted);
+  margin: 10px 0 0;
+}
+
+.ww-title-inner .ww-chips {
+  justify-content: center;
+  margin-top: 18px;
+}
+
+/* --- frontmatter boxes -------------------------------------------------- */
+/* One box per key the note actually carries, so the count and the kind of
+   boxes vary per entry. auto-fit wraps 4 to 2 to 1 without a media query. */
 .ww-meta {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 10px;
   text-align: left;
-  margin: 22px 0 0 0;
+  margin: 24px auto 0;
 }
 
 .ww-meta-box {
@@ -39,129 +107,8 @@ export const articleStyles = `
   overflow-wrap: break-word;
 }
 
-.ww-meta-value.ww-meta-accent {
-  color: var(--secondary);
-}
-
-/* --- "the roots of this page" ------------------------------------------ */
-/* Full-bleed band: the article column is padded, but this reaches the edges. */
-.ww-roots {
-  border-top: 1px solid var(--lightgray);
-  border-bottom: 1px solid var(--lightgray);
-  background: var(--ww-panel);
-  padding: 24px 0 26px;
-  margin: 26px 0 0 0;
-  text-align: left;
-}
-
-.ww-roots-heading {
-  font-family: var(--codeFont);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gray);
-  margin-bottom: 16px;
-}
-
-.ww-roots-grid {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 26px;
-  align-items: start;
-}
-
-.ww-roots-label {
-  font-family: var(--codeFont);
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #5f5344;
-  margin-bottom: 10px;
-}
-
-/* --- greensight (the relocated local graph) ---------------------------- */
-.ww-greensight-box {
-  aspect-ratio: 1;
-  border: 1px solid var(--lightgray);
-  border-radius: 5px;
-  background: var(--ww-graph-bg);
-  overflow: hidden;
-}
-
-/* Quartz's Graph component carries its own heading and chrome; here the band
-   supplies the label, so strip the component back to the canvas itself. */
-.ww-greensight-box .graph > h3 {
-  display: none;
-}
-
-.ww-greensight-box .graph > .graph-outer {
-  height: 100%;
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-}
-
-.ww-greensight-box .graph {
-  height: 100%;
-}
-
-/* --- backlinks ---------------------------------------------------------- */
-.ww-backlinks-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px 24px;
-}
-
-.ww-backlink {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--ww-divider);
-  min-width: 0;
-}
-
-.ww-backlink a {
-  font-family: var(--bodyFont);
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--tertiary);
-  background-color: transparent;
-  padding: 0;
-  text-decoration: none;
-}
-
-.ww-backlink a:hover {
-  color: #e0715f;
-}
-
-.ww-backlinks-empty {
-  font-family: var(--bodyFont);
-  font-style: italic;
-  font-size: 15px;
-  color: var(--gray);
-  margin: 0;
-}
-
-@media all and (max-width: 800px) {
-  .ww-meta {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .ww-roots-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .ww-greensight {
-    max-width: 220px;
-  }
-
-  .ww-backlinks-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media all and (max-width: 480px) {
-  .ww-meta {
-    grid-template-columns: 1fr;
-  }
+/* --- the roots of this page --------------------------------------------- */
+.ww-article-head .ww-roots {
+  margin-top: 30px;
 }
 `

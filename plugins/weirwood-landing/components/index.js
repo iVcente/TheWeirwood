@@ -1,8 +1,11 @@
 import { h } from "preact"
 import { resolveRelative } from "@quartz-community/utils/path"
 import { Graph } from "@quartz-community/graph"
+// Shared with weirwood-chrome so the front door's greensight and a section
+// index's open the same way. Node resolves a symlinked module against its real
+// path, so this relative hop lands in plugins/weirwood-chrome.
+import { graphOptions } from "../../weirwood-chrome/components/graph-config.js"
 import { landingStyles } from "./styles.js"
-import { greensightScript } from "./script.js"
 
 const defaultOptions = {
   tagline: "The trees remember.",
@@ -93,7 +96,7 @@ export const WeirwoodLanding = (userOpts) => {
   const opts = { ...defaultOptions, ...(userOpts ?? {}) }
   // Composed, not placed in a layout slot. Registered components still have
   // their CSS and scripts emitted, so the real graph works from here.
-  const GraphComponent = Graph()
+  const GraphComponent = Graph(graphOptions("overview"))
 
   const Landing = ({ fileData, allFiles, cfg, ...rest }) => {
     if (fileData.slug !== "index") return null
@@ -164,6 +167,10 @@ export const WeirwoodLanding = (userOpts) => {
       // Off-screen host for the real graph, so the CTA has a global graph to
       // open. Kept at a real size rather than display:none so d3 can lay the
       // local graph out without dividing by a zero-width container.
+      //
+      // The wiring lives in weirwood-chrome, which renders on every page but
+      // this one and whose script therefore ships site-wide. Attaching a second
+      // handler here would open and shut the overlay inside a single press.
       usesOverlay
         ? h(
             "div",
@@ -175,6 +182,5 @@ export const WeirwoodLanding = (userOpts) => {
   }
 
   Landing.css = landingStyles
-  Landing.afterDOMLoaded = greensightScript
   return Landing
 }

@@ -170,35 +170,44 @@ plugins:
     enabled: true
   - source: "@quartz-community/content-page"
     enabled: true
+  # Replaced by ./plugins/weirwood-chrome, which registers the section-index
+  # page type itself — generation included. See the comment on that plugin's
+  # `plugin` export for why layering over this one instead would have rendered
+  # any folder without an index.md with the stock dated listing, silently.
   - source: "@quartz-community/folder-page"
-    enabled: true
+    enabled: false
   - source: "@quartz-community/tag-page"
     enabled: true
   # The design is a single-column broadsheet with no sidebars, so the explorer
-  # has nowhere to live. Navigation is the top bar, the landing count boxes,
-  # breadcrumbs and in-page links.
+  # has nowhere to live. Navigation is the top bar, the landing count boxes, the
+  # roots tiles at the foot of a section index, and in-page links.
   - source: "@quartz-community/explorer"
     enabled: false
   # Graph stays ENABLED but is deliberately given no `layout` block:
-  # weirwood-article and weirwood-landing render it themselves, relocated into
-  # the "roots of this page" band and behind the greensight CTA. A registered
-  # but unplaced component still has its CSS and scripts emitted
-  # (componentResources collects from the registry, not the layout), so this is
-  # the real interactive d3 graph. Disabling it would break both.
+  # weirwood-chrome and weirwood-landing compose it themselves, parked off-screen
+  # so the greensight buttons have a real overlay to open. A registered but
+  # unplaced component still has its CSS and scripts emitted (componentResources
+  # collects from the registry, not the layout), so this is the real interactive
+  # d3 graph. Disabling it would leave every greensight control dead.
   - source: "@quartz-community/graph"
     enabled: true
-  # Backlinks are rendered directly by weirwood-article — the band needs a
-  # two-column list with a count in its label, which is further from this
-  # component's markup than it is worth fighting. The data comes from
+  # There is no backlink list on this site. Connections live in the greensight
+  # graph, which keeps the roots band one height whether seven pages lead to an
+  # entry or twenty-five — the reason that band can sit above the prose at all.
+  # weirwood-article still counts inbound links for the band's sub-label, from
   # crawl-links (file.links), not from this plugin.
   - source: "@quartz-community/backlinks"
     enabled: false
-  # The slim top bar: site title on the left, search on the right.
+  # The bar's second control, immediately after the greensight button that
+  # weirwood-chrome renders. Icon-only, and dressed to match it in custom.scss.
   - source: "@quartz-community/search"
     enabled: true
     layout:
       position: header
       priority: 20
+  # Kept for tag pages, and excluded from `content` and `folder` below: on those
+  # the title belongs inside the glowing title block, over the section emblem,
+  # which means weirwood-article and weirwood-chrome have to draw it themselves.
   - source: "@quartz-community/article-title"
     enabled: true
     layout:
@@ -212,8 +221,12 @@ plugins:
     layout:
       position: beforeBody
       priority: 30
+  # Superseded in the bar by weirwood-chrome's wordmark, which sets the tree
+  # mark beside it and the current section after it. That bar renders on every
+  # page but the front door — tag pages included — so nothing is left without a
+  # way home.
   - source: "@quartz-community/page-title"
-    enabled: true
+    enabled: false
     layout:
       position: header
       priority: 10
@@ -227,8 +240,11 @@ plugins:
       group: toolbar
   - source: "@quartz-community/reader-mode"
     enabled: false
+  # No breadcrumbs anywhere: the bar states the section, the page states the
+  # page, and a trail that repeats both above the title only pushes the entry
+  # down. Section is reachable from the bar and from the roots tiles.
   - source: "@quartz-community/breadcrumbs"
-    enabled: true
+    enabled: false
     layout:
       position: beforeBody
       priority: 5
@@ -274,8 +290,24 @@ plugins:
     layout:
       position: beforeBody
       priority: 1
-  # Article: the frontmatter metadata boxes and the "roots of this page" band
-  # (Greensight + backlinks), both above the prose. Renders nothing on the index.
+  # Chrome: the top bar on every page but the front door — tree mark, wordmark,
+  # the section being read, and the greensight button — plus the section-index
+  # page type (hero, entry cards, "roots of the tree" strip) and the ten emblems
+  # all three page types share.
+  #
+  # This plugin also ships the site's only afterDOMLoaded script: the greensight
+  # wiring for every [data-greensight] control on the page, and the search
+  # preview fix. Component resources are emitted site-wide, so both reach the
+  # landing too — which is exactly why weirwood-landing must NOT wire its own
+  # CTA. Two handlers would open and shut the overlay inside a single press.
+  - source: ./plugins/weirwood-chrome
+    enabled: true
+    layout:
+      position: header
+      priority: 10
+  # Article: the title block (emblem watermark, title, words, tags), the
+  # frontmatter boxes and the "roots of this page" band, all above the prose.
+  # Renders nothing on the index, a folder index or a tag page.
   - source: ./plugins/weirwood-article
     enabled: true
     layout:
@@ -341,42 +373,54 @@ layout:
         beforeBody: []
         left: []
         right: []
-    # Every article is a single-column broadsheet: `template` sets the frame for
-    # the whole page type, which is what drops the sidebars sitewide.
+    # Every entry is a single-column broadsheet: `template` sets the frame for
+    # the whole page type, which is what drops the sidebars sitewide. The title
+    # is drawn by weirwood-article, inside the glowing title block over the
+    # section emblem, so Quartz's own is excluded here.
+    #
+    # NOTE on `exclude`: it matches whatever `extractPluginName` returns for the
+    # source, which is the FULL string for an npm plugin but only the BASENAME
+    # for a local one. So an npm plugin must be spelled out in full, and a local
+    # plugin must be spelled WITHOUT its ./plugins/ prefix. Both forms are wrong
+    # the other way round, and a wrong one matches nothing, silently.
     content:
       template: full-width
+      exclude:
+        - "@quartz-community/article-title"
       positions:
         left: []
         right: []
     # The front door. The weirwood-landing plugin claims the index via a page
-    # type; the hero already states the title, so Quartz's own title, breadcrumb
-    # and table of contents would only repeat it above the fold.
-    #
-    # These must be full source strings — `exclude` compares against the
-    # plugin's `source` verbatim, so short names silently match nothing.
+    # type; the hero already states the title, so Quartz's own title and table
+    # of contents would only repeat it above the fold, and the bar would sit
+    # across the artwork.
     landing:
       exclude:
         - "@quartz-community/article-title"
-        - "@quartz-community/breadcrumbs"
         - "@quartz-community/table-of-contents"
-        - "@quartz-community/page-title"
-        - ./plugins/weirwood-article
+        - weirwood-article
+        - weirwood-chrome
       positions:
         left: []
         right: []
+    # A section index. weirwood-chrome supplies the whole body — hero, entry
+    # cards, roots strip — so nothing belongs above it.
     folder:
       template: full-width
       exclude:
+        - "@quartz-community/article-title"
         - "@quartz-community/table-of-contents"
-        - ./plugins/weirwood-article
+        - weirwood-article
       positions:
         left: []
         right: []
+    # Tag pages keep Quartz's own title and listing; the bar still names the
+    # site and gets them home.
     tag:
       template: full-width
       exclude:
         - "@quartz-community/table-of-contents"
-        - ./plugins/weirwood-article
+        - weirwood-article
       positions:
         left: []
         right: []

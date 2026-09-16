@@ -1,7 +1,7 @@
 {
-  "name": "weirwood-article",
+  "name": "weirwood-chrome",
   "version": "1.0.0",
-  "description": "Title block, frontmatter boxes and the \"roots of this page\" band, all above the prose.",
+  "description": "The top bar, the section-index page, and the marks all three page types share.",
   "type": "module",
   "private": true,
   "license": "MIT",
@@ -20,10 +20,13 @@
     "preact": "^10.0.0"
   },
   "quartz": {
-    "name": "weirwood-article",
-    "displayName": "Weirwood Article",
-    "description": "The furniture around an entry: title block, frontmatter boxes, connections band.",
-    "category": "component",
+    "name": "weirwood-chrome",
+    "displayName": "Weirwood Chrome",
+    "description": "Top bar with the section it is reading, and the section-index page type.",
+    "category": [
+      "pageType",
+      "component"
+    ],
     "version": "1.0.0",
     "quartzVersion": ">=5.0.0",
     "dependencies": [],
@@ -31,19 +34,16 @@
     "defaultEnabled": true,
     "defaultOptions": {},
     "components": {
-      "WeirwoodArticle": {
-        "displayName": "Weirwood Article",
-        "description": "Renders the title block, metadata boxes and roots band on entry pages.",
-        "defaultPosition": "beforeBody",
-        "defaultPriority": 30
+      "WeirwoodHeader": {
+        "displayName": "Weirwood Header",
+        "description": "The bar: wordmark, current section, greensight. Nothing on the landing.",
+        "defaultPosition": "header",
+        "defaultPriority": 10
       }
     },
     "optionSchema": {
-      "fields": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
+      "greensightLabel": {
+        "type": "string"
       },
       "rootsHeading": {
         "type": "string"
@@ -51,7 +51,7 @@
       "greensightHeading": {
         "type": "string"
       },
-      "stubLabel": {
+      "greensightSub": {
         "type": "string"
       }
     }

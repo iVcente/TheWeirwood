@@ -66,19 +66,39 @@ folder for it — a new folder should not be born until it has about three artic
 title: "..." # the one name for this page; wikilinks must use it verbatim
 type: character # one per folder: character | house | place | event | beast
 #              | order | relic | faith | mystery | custom
+words: "..." # optional motto, set in italic under the title (house words)
 house: "..." # optional; omit if N/A
-tags: ["..."] # cross-cutting views
+seat: "..." # optional
+region: "..." # optional
+tags: ["..."] # cross-cutting views; drawn as chips under the title
 era: "..." # in-world period; use this for ASOIAF dates too (e.g. "48 AC")
 book: "Fire & Blood" # source work
 status: stub # stub | draft | complete
+description: "..." # optional; otherwise derived from the opening sentence
+facts: # optional open map: one more box per key, in this order
+  bearers: "..."
 ---
 ```
+
+The frontmatter **is** the article's metadata boxes. `weirwood-article` renders
+one box per key it finds, from a named list (`type`, `house`, `era`, `book`,
+`seat`, `region`, `founded`) and then from `facts:`, in that order — so the
+number and the kind of boxes vary per entry and an absent key simply has no box.
+Adding a box means adding a frontmatter key, not editing a component.
+
+Two keys do not become boxes. `tags:` is the chip row under the title, and
+`status: stub` (or `stub: true`) raises a **stub badge** at the end of that row
+— which is why `status` is deliberately absent from the box list.
+
+**There are no dates anywhere on the site.** `created-modified-date` stays
+enabled because other plugins read it, but nothing renders it: no date line, no
+dated folder listing, no "last modified".
 
 ### Linking conventions
 
 - Link any entity inline with a wikilink: `[[Balerion]]`.
 - Change the words on the page without changing the target: `[[Balerion|the Black
-  Dread]]`. The left side is always the article's exact title; the right side is
+Dread]]`. The left side is always the article's exact title; the right side is
   whatever the sentence needs.
 - A wikilink to a not-yet-written page becomes a **placeholder** (good for planning).
 - **There is no `aliases:` field, deliberately.** It bought one thing here — a short
@@ -101,6 +121,42 @@ status: stub # stub | draft | complete
 Written in VSCode + the Foam extension (open source). New articles start from templates
 in `.foam/templates/` (`character.md`, `event.md`). Foam's `[[...]]` syntax matches
 Quartz's, so the local graph/backlinks and the published site stay in sync.
+
+### Page structure
+
+Three page types, and each one runs the same way: **bands run edge to edge and
+paint their own background; only what is inside them is measured.** That is why
+`.center.full-width` is deliberately _not_ capped in `custom.scss` — capping the
+column is what would strand a band's background in mid-air on a wide screen. The
+measure lives on `.ww-band-inner` (via `--ww-band` / `--ww-band-pad`) and on the
+prose.
+
+There are two measures. `--ww-band: 1120px` is the chrome column — the top bar,
+the section hero, the entry grid, the roots strips. `--ww-measure: 780px` is the
+reading column, about 68ch; `weirwood-article` re-points `--ww-band` at it so an
+entry's boxes and its roots band line up with the paragraph beneath them.
+
+- **The bar** (every page but the front door): tree mark, wordmark, then the
+  section being read. **No breadcrumbs anywhere** — the bar states the section,
+  the page states the page. Two 32px icon buttons on the right: greensight, then
+  search.
+- **A section index** (`content/<folder>/index.md`): hero with the section's
+  emblem behind the title and the index note's own prose as the description,
+  then a card per entry, then the "roots of the tree" strip — one greensight
+  panel and a tile for every section, the current one marked and not a link.
+- **An entry**: title block over the section emblem, the frontmatter boxes, then
+  "the roots of this page" — a single greensight panel carrying the inbound-link
+  count. **There is deliberately no backlink list**: the connections live in the
+  graph, which keeps that band one height whether seven pages lead here or
+  twenty-five, which is the only reason it can sit above the prose at all.
+
+**Section emblems** are one inline SVG per top-level folder, keyed by folder
+name, in `plugins/weirwood-chrome/components/emblems.js` — drawn on a 24 viewBox
+with no fills and no baked colour, so `stroke` inherits the palette. They are
+used at three sizes (17px in the bar, 26px in a tile, ~200–230px as a
+watermark), and the stroke weight is passed per size rather than scaled. A
+folder with no emblem falls back to a weirwood leaf, so adding a section never
+renders a hole.
 
 ### Theming
 
@@ -148,9 +204,13 @@ Quartz version, independent of whatever visual design is in place.
 - **`frame` is a layout property, not frontmatter.** Putting `frame:` in a `.md` file has
   no effect. A page needs its own frame (e.g. `full-width`) via a page type registered by
   a plugin, or a `byPageType` override — which applies to every page of that type.
-- **`exclude:` in `byPageType` matches the plugin's full `source` string**, so
-  `- reader-mode` matches nothing; it must be `- "@quartz-community/reader-mode"`. Some
-  entries in the shipped config get this wrong and are silently inert.
+- **`exclude:` in `byPageType` matches `extractPluginName(source)`, which is not the same
+  string for both kinds of plugin.** For an npm plugin it is the whole source, so
+  `- reader-mode` matches nothing and it must be `- "@quartz-community/reader-mode"`. For
+  a **local** plugin it is only the **basename**, so `- ./plugins/weirwood-article`
+  matches nothing and it must be `- weirwood-article`. Each form is wrong the other way
+  round, and a wrong one is silently inert. Some entries in the shipped config get this
+  wrong; this repo's local-plugin exclusions were inert until the folder/article rework.
 - **Disabling `@quartz-community/darkmode` means `:root[saved-theme="dark"]` is never
   set**, so the `lightMode` palette becomes the only one that ever applies, whatever the
   visitor's OS preference. That plugin also supplies `color-scheme`.
@@ -166,10 +226,34 @@ Quartz version, independent of whatever visual design is in place.
   is in use. Both are CC BY 3.0 and credited at `/colophon`; see README.md.
 - **A backtick in a local plugin's CSS silently deletes the component.** That CSS lives
   in a JS template literal (`export const landingStyles = \`...\``), so a stray backtick —
-  including one inside a CSS comment, quoting a property name — closes the string early.
-  The build still reports success; it just emits two fewer files and the component vanishes
-  from the page with no error. Write property names in comments bare, and check
-  `grep -c '\`' <file>` returns 2.
+including one inside a CSS comment, quoting a property name — closes the string early.
+The build still reports success; it just emits two fewer files and the component vanishes
+from the page with no error. Write property names in comments bare, and check
+`grep -c '\`' <file>` returns 2.
+- **A plugin can only have ONE of its components placed by the layout loader.**
+  `buildLayoutForEntries` looks a plugin's component up by its kebab name or by the
+  PascalCase of that name, and `loadComponentsFromPackage` only registers under the bare
+  plugin name when the manifest declares **exactly one** component. Declare two and
+  neither the `layout:` block in `quartz.config.yaml` nor the manifest's
+  `defaultPosition` can place the second one — it is registered, so its CSS and scripts
+  still ship, but it never renders. This is why the top bar and the article furniture are
+  two plugins rather than one, and why `weirwood-chrome` can still own the folder page
+  type: a page type's `body` is called directly and never goes through the registry.
+- **A page type's `generate` runs even when its `match` never wins, and a virtual page is
+  emitted with the layout of the page type that _generated_ it.** So layering a
+  higher-priority folder page type over `@quartz-community/folder-page` looks correct —
+  it does win `match` for every folder with an `index.md` — while every folder _without_
+  one is still emitted by the other plugin, with the stock listing and no hero. Own the
+  generation or disable the plugin; do not stack them.
+- **`article > p` matches nothing.** Quartz wraps rendered Markdown in
+  `div.markdown-preview-view`, so a child combinator from `article` to a paragraph is a
+  dead selector. This is not a build error and not visible in the CSS — the rule simply
+  never applies. The drop cap in `custom.scss` was written this way and never rendered
+  until it was fixed; keep the `.markdown-preview-view` step in any prose selector.
+- **Popovers stack every `.popover-hint` on the target page into one small card**, and on
+  this site that is the whole block above the prose: title block, glow, watermark,
+  frontmatter boxes, roots band. Anything added there needs a matching rule in the
+  `--- previews ---` section of `custom.scss` or it turns up inside every link preview.
 - **Favicons cache hard.** A changed icon can keep showing the old one — or a different
   project's, on `localhost:8080` — long after a normal reload. Confirm the file itself by
   opening `/static/icon.png` directly, then check the tab in a private window.
@@ -195,8 +279,12 @@ This site's own plugins:
 - `plugins/weirwood-landing` — the hero, the greensight CTA, and a count-box row whose
   cells are **discovered** from the content tree (every top-level folder holding at least
   one article becomes a cell, labelled and counted automatically).
-- `plugins/weirwood-article` — frontmatter-driven metadata boxes and the "roots of this
-  page" band (local graph + backlinks) that sits above the prose.
+- `plugins/weirwood-chrome` — the top bar on every page but the front door (tree mark,
+  wordmark, the section being read, greensight), the **section-index page type** (hero,
+  entry cards, "roots of the tree" strip), and the ten section emblems all three page
+  types draw. It also ships the site's only `afterDOMLoaded` script.
+- `plugins/weirwood-article` — the title block (emblem watermark, title, `words`, chips),
+  the frontmatter boxes and the "roots of this page" band, all above the prose.
 - `plugins/weirwood-footer` — replaces `@quartz-community/footer`, whose "Created with"
   string is hardcoded and localised (`links` is the only option it exposes), so the credit
   bar can speak in-world. One centred sentence with a link set into it, built from the

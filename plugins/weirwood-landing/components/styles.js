@@ -246,15 +246,6 @@ a.ww-count-cell:hover .ww-count-label {
    overlay is position:fixed and nothing in this chain establishes a containing
    block for it, so it opens at the viewport and needs no counter-offset —
    giving it one is what used to push it 10000px off-screen. */
-.ww-graph-host {
-  position: absolute;
-  left: -10000px;
-  top: 0;
-  width: 320px;
-  height: 320px;
-  overflow: hidden;
-}
-
 @media all and (max-width: 800px) {
   .ww-hero {
     padding: 48px 20px 40px;
