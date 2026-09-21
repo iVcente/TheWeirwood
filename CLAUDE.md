@@ -245,6 +245,7 @@ Quartz version, independent of whatever visual design is in place.
   `icon-tree.png` (Lorc's dead wood, also the hero and the og-image) and `icon-face.png`
   (Cathelineau's carved face, the current favicon) — and `icon.png` is a copy of whichever
   is in use. Both are CC BY 3.0 and credited at `/colophon`; see README.md.
+  `plugins/weirwood-touch-icon` reads the same `icon.png`, so a swap moves both marks.
 - **A backtick in a local plugin's CSS silently deletes the component.** That CSS lives
   in a JS template literal (`export const landingStyles = \`...\``), so a stray backtick —
 including one inside a CSS comment, quoting a property name — closes the string early.
@@ -316,6 +317,17 @@ This site's own plugins:
   it stay reachable. Quartz's own credit moved there too; it is courtesy either way, since
   the notice MIT asks for is `LICENSE.txt`. Ships no CSS — the bar is styled by
   `#quartz-body > footer` in `custom.scss`.
+- `plugins/weirwood-touch-icon` — an emitter, with no component and no `layout:` block.
+  WebKit asks the site **root** for `/apple-touch-icon-precomposed.png` and then
+  `/apple-touch-icon.png` whenever it wants a high-resolution icon and the document
+  declares none — which `Head.tsx` does not, and which is why those two 404s appear in
+  the dev server log the moment Safari goes looking. This writes both files (same bytes;
+  "precomposed" has meant nothing since iOS 7 dropped the gloss) at 180x180, flattened
+  onto `background` because iOS backs a transparent home-screen icon with black. It is
+  deliberately **not** a `<link rel="apple-touch-icon">` in `Head.tsx`: that would be a
+  third `LOCAL MODIFICATION` for an upgrade to revert silently, and the root-path guess
+  needs nothing in the document. `background` must stay in step with the landing
+  `theme-color` and the `body[data-slug="index"]` background-color.
 
 ### Build & deploy
 

@@ -1,0 +1,42 @@
+{
+  "name": "weirwood-touch-icon",
+  "version": "1.0.0",
+  "description": "Emits the home-screen icon WebKit probes for at the site root.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./index.js",
+  "sideEffects": false,
+  "peerDependencies": {
+    "sharp": ">=0.33.0"
+  },
+  "quartz": {
+    "name": "weirwood-touch-icon",
+    "displayName": "Weirwood Touch Icon",
+    "description": "Answers Safari's apple-touch-icon probe without a link tag in Head.tsx.",
+    "category": "emitter",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.0.0",
+    "dependencies": [],
+    "defaultOrder": 50,
+    "defaultEnabled": true,
+    "defaultOptions": {},
+    "optionSchema": {
+      "source": {
+        "type": "string"
+      },
+      "size": {
+        "type": "number"
+      },
+      "background": {
+        "type": "string"
+      }
+    }
+  }
+}

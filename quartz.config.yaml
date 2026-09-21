@@ -346,6 +346,25 @@ plugins:
     layout:
       position: footer
       priority: 50
+  # Touch icon: an emitter, no layout and no component. WebKit asks the site
+  # ROOT for /apple-touch-icon-precomposed.png and then /apple-touch-icon.png
+  # whenever it wants a high-resolution icon and the document declares none —
+  # which Head.tsx does not. Both probes 404'd; this writes both files so they
+  # do not. Deliberately not a <link rel="apple-touch-icon"> in Head.tsx: that
+  # would be a third LOCAL MODIFICATION for a Quartz upgrade to revert without
+  # saying so, and the root-path guess needs nothing in the document at all.
+  - source: ./plugins/weirwood-touch-icon
+    enabled: true
+    options:
+      # The same file @quartz-community/favicon reads, so swapping icon.png
+      # between icon-face.png and icon-tree.png moves both marks at once.
+      source: "quartz/static/icon.png"
+      # What iOS asks for. Leave the source at 512 and let sharp come down.
+      size: 180
+      # icon.png has an alpha channel and iOS backs a transparent home-screen
+      # icon with black. This is the landing's theme-color in Head.tsx; keep
+      # the three values in step.
+      background: "#2b1813"
   # MUST stay enabled: despite the name, this plugin is the frontmatter
   # transformer as well as the properties-table component. Disabling it strips
   # frontmatter from every page — titles become "Untitled" and nothing that
