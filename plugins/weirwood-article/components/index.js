@@ -148,7 +148,13 @@ export const WeirwoodArticle = (userOpts) => {
     // No backlink list. The connections live in the graph, which keeps this
     // band one height whether seven pages lead here or twenty-five — the reason
     // it can sit above the prose at all.
-    const roots = h(
+    //
+    // `greensight: false` in the frontmatter takes the band off entirely, for a
+    // page that is not in the graph to begin with. The count would read
+    // "Nothing leads here yet" and the panel would open the greensight on a
+    // neighbourhood with no node at its centre — a door onto nothing. The bar's
+    // button is dropped by the same key, in weirwood-chrome/header.js.
+    const roots = frontmatter.greensight === false ? null : h(
       "section",
       { class: "ww-roots" },
       h("div", { class: "ww-band-inner" }, [

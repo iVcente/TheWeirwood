@@ -486,6 +486,11 @@ body .popover .section {
 // drop the rest. The prose below them is the point of the preview.
 .popover {
   .ww-title-block {
+    // The min-height and the flex centring that hold the emblem clear on the
+    // page would open a 240px void at the top of a card whose emblem is
+    // hidden two rules down. Both have to come back off here.
+    display: block;
+    min-height: 0;
     padding: 0 0 8px;
     background-image: none;
     text-align: left;

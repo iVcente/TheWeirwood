@@ -90,6 +90,15 @@ Two keys do not become boxes. `tags:` is the chip row under the title, and
 `status: stub` (or `stub: true`) raises a **stub badge** at the end of that row
 — which is why `status` is deliberately absent from the box list.
 
+A third, `greensight: false`, is not metadata at all: it takes the greensight
+off a page that is not in the graph to begin with — both the bar's button and
+the "roots of this page" band, which would otherwise open the overlay on a
+neighbourhood with no node at its centre. `/colophon` is the only page that
+carries it, and `unlisted: true` is the reason. Note that `unlisted` alone
+cannot stand in for it: every section `index.md` is unlisted too, and those
+pages keep their greensight because the overview graph they open is the whole
+archive, not themselves.
+
 **There are no dates anywhere on the site.** `created-modified-date` stays
 enabled because other plugins read it, but nothing renders it: no date line, no
 dated folder listing, no "last modified".
@@ -136,7 +145,7 @@ the section hero, the entry grid, the roots strips. `--ww-measure: 780px` is the
 reading column, about 68ch; `weirwood-article` re-points `--ww-band` at it so an
 entry's boxes and its roots band line up with the paragraph beneath them.
 
-- **The bar** (every page but the front door): tree mark, wordmark, then the
+- **The bar** (every page but the front door): carved face, wordmark, then the
   section being read. **No breadcrumbs anywhere** — the bar states the section,
   the page states the page. Two 32px icon buttons on the right: greensight, then
   search.
@@ -151,12 +160,24 @@ entry's boxes and its roots band line up with the paragraph beneath them.
   twenty-five, which is the only reason it can sit above the prose at all.
 
 **Section emblems** are one inline SVG per top-level folder, keyed by folder
-name, in `plugins/weirwood-chrome/components/emblems.js` — drawn on a 24 viewBox
-with no fills and no baked colour, so `stroke` inherits the palette. They are
-used at three sizes (17px in the bar, 26px in a tile, ~200–230px as a
-watermark), and the stroke weight is passed per size rather than scaled. A
-folder with no emblem falls back to a weirwood leaf, so adding a section never
-renders a hole.
+name, in `plugins/weirwood-chrome/components/emblems.js`. They come from
+game-icons.net under CC BY 3.0 — each a single filled path on a 512 viewBox,
+with the black ground and the baked `fill` stripped so `fill: currentColor`
+inherits the palette. They are used at three sizes (17px in the bar, 26px in a
+tile, 200–230px as a watermark) and carry no strokes, so nothing needs tuning
+per size. **Every icon used on the site must be credited on `/colophon`** —
+that page is the only place the CC BY notice appears, and the licence requires
+it stay reachable. To add one: take the `d` from
+`https://game-icons.net/icons/ffffff/transparent/1x1/<author>/<icon>.svg` (the
+`transparent` segment is what drops the background rect), add the entry with
+its source URL in a comment, and add the credit line.
+
+A folder with no emblem falls back to a weirwood leaf, so adding a section
+never renders a hole. That leaf is the one mark still drawn by hand — line art
+on a 24 viewBox — which is the only reason `Emblem` still takes a
+`strokeWidth`: it reaches the fallback and nothing else. The same source and
+the same rules cover the **greensight glyph** (`GreensightMark`), used at 18px
+in the header button and 26–32px in the greensight panels.
 
 ### Theming
 
@@ -279,7 +300,7 @@ This site's own plugins:
 - `plugins/weirwood-landing` — the hero, the greensight CTA, and a count-box row whose
   cells are **discovered** from the content tree (every top-level folder holding at least
   one article becomes a cell, labelled and counted automatically).
-- `plugins/weirwood-chrome` — the top bar on every page but the front door (tree mark,
+- `plugins/weirwood-chrome` — the top bar on every page but the front door (carved face,
   wordmark, the section being read, greensight), the **section-index page type** (hero,
   entry cards, "roots of the tree" strip), and the ten section emblems all three page
   types draw. It also ships the site's only `afterDOMLoaded` script.

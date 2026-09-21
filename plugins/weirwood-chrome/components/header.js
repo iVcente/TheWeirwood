@@ -1,7 +1,7 @@
 import { h } from "preact"
 import { resolveRelative } from "@quartz-community/utils/path"
 import { Graph } from "@quartz-community/graph"
-import { Emblem, GreensightMark, TreeMark } from "./emblems.js"
+import { Emblem, FaceMark, GreensightMark } from "./emblems.js"
 import { sectionOf, sectionTitle } from "./sections.js"
 import { graphOptions } from "./graph-config.js"
 import { chromeStyles } from "./styles.js"
@@ -39,11 +39,12 @@ export const WeirwoodHeader = (userOpts) => {
 
     const section = sectionOf(slug)
     const label = sectionTitle(allFiles, section)
+    const greensight = fileData.frontmatter?.greensight !== false
 
     return h("div", { class: "ww-head" }, [
       h("div", { class: "ww-head-left" }, [
         h("a", { class: "ww-head-brand", href: resolveRelative(slug, "index") }, [
-          h(TreeMark, { size: 26, class: "ww-head-tree" }),
+          h(FaceMark, { size: 26, class: "ww-head-mark" }),
           h("span", { class: "ww-head-wordmark" }, cfg.pageTitle),
         ]),
         section && h("span", { class: "ww-head-divider", "aria-hidden": "true" }),
@@ -53,16 +54,21 @@ export const WeirwoodHeader = (userOpts) => {
             h("span", {}, label),
           ]),
       ]),
-      h(
-        "button",
-        {
-          type: "button",
-          class: "ww-icon-button",
-          "data-greensight": "",
-          "aria-label": opts.greensightLabel,
-        },
-        h(GreensightMark, { size: 18 }),
-      ),
+      // `greensight: false` in the frontmatter drops the button — and, below,
+      // the graph it would open. For a page that is not a node in the graph,
+      // the overlay opens on a neighbourhood with nothing at its centre. The
+      // same key takes the roots band off the body, in weirwood-article.
+      greensight &&
+        h(
+          "button",
+          {
+            type: "button",
+            class: "ww-icon-button",
+            "data-greensight": "",
+            "aria-label": opts.greensightLabel,
+          },
+          h(GreensightMark, { size: 18 }),
+        ),
       // Off-screen host for the real graph. Kept at a real size rather than
       // display:none so d3 can lay it out without dividing by a zero-width
       // container.
@@ -71,16 +77,17 @@ export const WeirwoodHeader = (userOpts) => {
       // promises; an entry opens its own neighbourhood, which is what the band
       // above the prose asks about. The bar's button opens whichever the page
       // it sits on would.
-      h(
-        "div",
-        { class: "ww-graph-host", "aria-hidden": "true" },
-        h(slug.endsWith("/index") ? Graphs.overview : Graphs.neighbourhood, {
-          fileData,
-          allFiles,
-          cfg,
-          ...rest,
-        }),
-      ),
+      greensight &&
+        h(
+          "div",
+          { class: "ww-graph-host", "aria-hidden": "true" },
+          h(slug.endsWith("/index") ? Graphs.overview : Graphs.neighbourhood, {
+            fileData,
+            allFiles,
+            cfg,
+            ...rest,
+          }),
+        ),
     ])
   }
 

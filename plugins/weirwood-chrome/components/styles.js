@@ -50,10 +50,12 @@ export const chromeStyles = `
   flex-shrink: 0;
 }
 
-.ww-head-tree {
+/* The carved face is one path, not ink strokes with red leaf nodes, so the
+   two-token treatment the old hand-drawn tree took is gone: it inherits one
+   colour, the same red the front door raises the heart tree in. */
+.ww-head-mark {
   flex-shrink: 0;
-  --ww-mark-ink: var(--dark);
-  --ww-mark-leaf: var(--secondary);
+  color: var(--secondary);
 }
 
 .ww-head-wordmark {

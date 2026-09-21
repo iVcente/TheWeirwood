@@ -17,6 +17,20 @@ export const articleStyles = `
 .ww-title-block {
   position: relative;
   overflow: hidden;
+  /* Tall enough that the 200px emblem behind the title clears both edges. The
+     mark is centred and then nudged up 52% of its own height, so it spans from
+     50% - 104px to 50% + 96px: any block shorter than 208px crops its crown.
+     240px leaves a margin at both ends.
+
+     Centring the inner column rather than letting it sit on the top padding is
+     what makes this safe to grow. An entry with a motto, or a title that wraps
+     to two lines, needs more than 240px; the block takes the height, the title
+     stays in the middle of it, and the mark re-centres with it instead of
+     clipping. Min-height, never height, for the same reason. */
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: 40px 0 34px;
   text-align: center;
   /* Softer than the section hero's: an entry is a page in the chronicle, not
