@@ -37,6 +37,11 @@
   // gradient's own colour along its top edge, so the strip above the hero reads
   // as part of the artwork. The hero fades out of it; the footer sits in it.
   --ww-chrome: #2b1813;
+  // The page's own ground: the colour a reader sees behind the whole document.
+  // It is painted by #quartz-root rather than by body, because body is now the
+  // browser's colour and nothing else — see "the browser's own chrome" at the
+  // foot of this file. The landing re-points it at the chrome colour there.
+  --ww-ground: var(--light);
 
   // Supplied by the darkmode plugin in stock Quartz; that plugin is off here,
   // so without this, form controls and scrollbars would render light.
@@ -696,33 +701,72 @@ body[data-slug="index"] .ww-counts {
 }
 
 // --- the browser's own chrome ----------------------------------------------
+// Two surfaces the page does not own are painted from the same place: the strip
+// Safari tints behind the status bar, and the gutter a rubber-band scroll opens
+// above and below the document. Both are sampled off `body`.
+//
 // Safari 26 dropped `theme-color`: the meta tag still parses and the value is
 // ignored. What it does instead is sample a colour off the page — the
 // background-color of a position:fixed or sticky element near the top of the
 // viewport if there is one, otherwise the background-color of `body` — and tint
-// the strip behind the status bar with it.
+// the strip behind the status bar with it. That sampling is why the strip above
+// the hero was black: it was showing `--light`, faithfully, because that is
+// what body was painted.
 //
-// That sampling is why the strip above the hero was black: it was showing
-// `--light`, faithfully, because that is what body is painted.
+// The gutter works the same way, and not the way the canvas rules in the spec
+// suggest. WebKit fills the scroll view with ONE flat colour taken from `body`;
+// it does not extend the root element's background there, and it ignores
+// background *images* entirely. Both were verified here: a magenta root never
+// showed at either end of the scroll. So the gutter can only be moved from
+// `body`, and it is a single colour — the strip above the top bar and the strip
+// under the footer are necessarily the same.
 //
-// So body carries the chrome colour instead — but note what that means. body is
-// not hidden on this page: `.ww-counts` cells are transparent and the footer
-// painted no background of its own, so both were showing this colour straight
-// through and the whole lower third of the page warmed up with the strip. The
-// count boxes now paint `--light` themselves (see the landing plugin). The
-// footer is painted this same colour explicitly, sitewide: Safari tints its top
-// strip and its bottom bar with the SAME sampled colour, so the bar has to stay
-// in the chrome colour here or the strip below it steps. `--ww-chrome` is the
-// single source for both — keep them identical.
+// Hence the split below, which is the front door's own arrangement handed to
+// every page: `body` is painted the chrome colour and nothing else, and the
+// page element on top of it paints the ground a reader actually sees. body is
+// then the only thing left under the document at either end of the scroll.
+//
+// It has to be a real element, not a background-image on body. WebKit paints
+// the propagated body background across the WHOLE canvas, gutters included, so
+// a flat image of the ground there simply covers the chrome colour back up and
+// nothing changes — which is exactly what happened on the two attempts before
+// this one.
+//
+// What that buys: the footer bar, the strip under it, the gutter past it and
+// Safari's bottom bar are all `--ww-chrome` now, on every page — the landing's
+// ending, given to the whole site. The cost is the far end of the same rule:
+// pulling down at the top of an article opens the same warm colour above a
+// near-black bar, and on iOS the status strip warms with it. That was once
+// refused for articles as a new mismatch; it is the price of one flat colour
+// for both ends, and the bar's own red hairline and carved face make it read as
+// the frame rather than a seam.
 //
 // A flat tint is the ceiling here. Safari samples one colour, so the tree and
 // the pinstripe cannot follow it up there; the hero fades out of this colour at
 // its top edge to soften the join. Only standalone/Home Screen mode would give
 // the page the real estate behind the status bar.
 //
-// Articles are deliberately left alone. Their body background is the right
-// answer already, and a warm strip over a near-black page would be a new
-// mismatch rather than a fixed one.
-body[data-slug="index"] {
+// body is not hidden on the landing: `.ww-counts` cells are transparent and the
+// footer painted no background of its own, so both were showing the chrome
+// colour straight through and the whole lower third of the page warmed up with
+// the strip. The count boxes now paint `--light` themselves (see the landing
+// plugin), and the footer paints `--ww-chrome` explicitly, sitewide.
+//
+// min-height is the short-page guard: the ground is #quartz-root's box, so
+// without it a page that does not fill the viewport would end its footer in the
+// chrome colour a screen early.
+body {
   background-color: var(--ww-chrome);
+}
+
+#quartz-root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--ww-ground);
+}
+
+// The front door's ground IS the chrome colour — the hero fades out of it — so
+// there the two layers are one value and nothing above changes anything.
+body[data-slug="index"] {
+  --ww-ground: var(--ww-chrome);
 }

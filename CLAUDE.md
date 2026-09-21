@@ -196,10 +196,16 @@ arrays) describe files that do not exist here. Translate before following them.
   - `theme-color`, **landing only** — and note that **Safari 26 ignores it**: the tag
     parses and the value is dropped. It is kept for Chrome and Android, which still
     honour it. What actually tints the strip behind the status bar on current Safari is
-    the `body[data-slug="index"]` background-color in the "browser's own chrome" section
-    of `custom.scss`; keep the two values the same. Safari samples a fixed or sticky
-    element near the top of the viewport in preference to `body`, so introducing one on
-    the landing would silently take the tint over.
+    `body`'s background-color in the "browser's own chrome" section of `custom.scss` —
+    `--ww-chrome`, sitewide; keep the two values the same. That same colour is what
+    WebKit fills the rubber-band gutter with at both ends of the scroll, which is why
+    `body` is painted that colour and nothing else, and the ground a reader sees is
+    painted by `#quartz-root` on top of it — the front door's arrangement, sitewide. A
+    background-image on `body` cannot stand in: WebKit paints the propagated body
+    background across the whole canvas, gutters included, so the ground covers the
+    chrome colour straight back up. Safari samples a
+    fixed or sticky element near the top of the viewport in preference to `body`, so
+    introducing one would silently take the tint over.
   - `viewport-fit=cover` on the viewport meta. This does **not** put the hero under the
     status bar in normal Safari browsing (that strip is unreachable; the top inset is 0
     there). It earns its place in landscape, where the notch would otherwise bar one side,
@@ -327,7 +333,7 @@ This site's own plugins:
   deliberately **not** a `<link rel="apple-touch-icon">` in `Head.tsx`: that would be a
   third `LOCAL MODIFICATION` for an upgrade to revert silently, and the root-path guess
   needs nothing in the document. `background` must stay in step with the landing
-  `theme-color` and the `body[data-slug="index"]` background-color.
+  `theme-color` and `body`'s background-color.
 
 ### Build & deploy
 
