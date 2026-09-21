@@ -490,6 +490,16 @@ body .popover .section {
 // Keep the title and the words, since they say what is being previewed, and
 // drop the rest. The prose below them is the point of the preview.
 .popover {
+  // Stock Quartz gives the card no padding at the top, because stock content
+  // opens with an h1 whose own margin stands in for it. The title block here
+  // carries its padding at the foot instead, so the title sat hard against the
+  // border. Pad the card itself and the title sits in the same 1rem of air as
+  // the three other sides. The image and PDF cards override this with a longer
+  // selector, so they stay flush.
+  & > .popover-inner {
+    padding-top: 1rem;
+  }
+
   .ww-title-block {
     // The min-height and the flex centring that hold the emblem clear on the
     // page would open a 240px void at the top of a card whose emblem is
