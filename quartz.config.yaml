@@ -88,6 +88,12 @@ plugins:
     enabled: true
     options:
       markdownLinkResolution: shortest
+      # No arrow glyph after an outbound link. The plugin appends an inline SVG
+      # to every external anchor by default; on a page of prose that reads as a
+      # printing error, and the colophon — a column of nothing but outbound
+      # credits — wore one on every line. Off at the source rather than hidden
+      # in CSS, so the mark is never emitted at all.
+      externalLinkIcon: false
     order: 60
   - source: "@quartz-community/description"
     enabled: true
