@@ -241,6 +241,31 @@ a.ww-count-cell:hover .ww-count-label {
   color: var(--dark);
 }
 
+/* --- the way across ----------------------------------------------------- */
+/* One line under the sections, in the ledger voice the count values use rather
+   than the headline voice of the labels above it. It is the only route to /tags
+   from the front door, and it is deliberately quiet: the sections are the
+   archive's shape, and a tag is a cut across them. */
+.ww-threads {
+  display: block;
+  padding: 14px 20px 16px;
+  border-top: 1px solid var(--ww-divider);
+  background-color: var(--light);
+  font-family: var(--codeFont);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #8a7b67;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.ww-threads:hover {
+  background-color: var(--highlight);
+  color: var(--dark);
+}
+
 /* The graph the CTA opens. Off-screen rather than display:none so d3 still has
    a real box to lay out in. Only the inert local-graph box is parked here: the
    overlay is position:fixed and nothing in this chain establishes a containing

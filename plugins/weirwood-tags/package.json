@@ -1,0 +1,42 @@
+{
+  "name": "weirwood-tags",
+  "version": "1.0.0",
+  "description": "The tag page type: a cut across the sections, grouped by the section each page lives in.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    },
+    "./components": {
+      "import": "./components/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./index.js",
+  "sideEffects": false,
+  "peerDependencies": {
+    "preact": "^10.0.0"
+  },
+  "quartz": {
+    "name": "weirwood-tags",
+    "displayName": "Weirwood Tags",
+    "description": "Replaces @quartz-community/tag-page: the tag hero, the entries grouped by section, and the card index at /tags.",
+    "category": "pageType",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.0.0",
+    "dependencies": [],
+    "defaultOrder": 50,
+    "defaultEnabled": true,
+    "defaultOptions": {},
+    "optionSchema": {
+      "indexTitle": {
+        "type": "string"
+      },
+      "unsortedLabel": {
+        "type": "string"
+      }
+    }
+  }
+}

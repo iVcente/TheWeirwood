@@ -16,6 +16,17 @@ const defaultOptions = {
   // The section this opens. Hidden entirely when no such section exists, so the
   // button can never point at a page that has not been written.
   worldLink: "places",
+  // The one route to /tags from the front door. It sits UNDER the count boxes
+  // rather than beside the two buttons: a tag is a cut across the sections, so
+  // it ranks below them, and a third filled CTA would turn one gesture and one
+  // way in into a menu of three — three stacked slabs on a phone, out of a
+  // landing that is meant to be a single screen.
+  //
+  // One word, in the same voice the count labels are set in. The line sits in a
+  // row of ten section names; a sentence there would be the only prose in the
+  // block and would read as a notice rather than as the eleventh way in.
+  tagsLabel: "Tags",
+  tagsLink: "tags/index",
   // Optional explicit ordering of the count boxes; anything not listed follows
   // alphabetically. Sections themselves are always discovered, never listed.
   order: [],
@@ -109,6 +120,11 @@ export const WeirwoodLanding = (userOpts) => {
     // The landing only ever renders at the site root, so a page-relative path
     // to the static asset is correct in both dev and production.
     const hasWorld = sections.some((section) => section.segment === opts.worldLink)
+    // Hidden entirely until something is tagged, on the same principle as the
+    // world button: the front door never opens a page that would be empty.
+    const hasTags = (allFiles ?? []).some(
+      (file) => file?.unlisted !== true && (file?.frontmatter?.tags ?? []).length > 0,
+    )
 
     const hero = h("section", { class: "ww-hero" }, [
       h("img", {
@@ -161,9 +177,19 @@ export const WeirwoodLanding = (userOpts) => {
         )
       : null
 
+    const threads =
+      hasTags && opts.tagsLink
+        ? h(
+            "a",
+            { class: "ww-threads", href: resolveRelative(slug, opts.tagsLink) },
+            opts.tagsLabel,
+          )
+        : null
+
     return h("div", { class: "ww-landing" }, [
       hero,
       counts,
+      threads,
       // Off-screen host for the real graph, so the CTA has a global graph to
       // open. Kept at a real size rather than display:none so d3 can lay the
       // local graph out without dividing by a zero-width container.

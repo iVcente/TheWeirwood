@@ -22,10 +22,12 @@ The carved face -- watching from the browser tab, and standing at the left of th
 
 The glyph on the greensight -- the door to the graph, on every page and at the foot of every entry -- is the **[Mesh network icon](https://game-icons.net/1x1/delapouite/mesh-network.html)** by [Delapouite](https://delapouite.com/).
 
+The mark on a tag -- in the bar of a tag page, and standing behind its title -- is the **[Grouped drops icon](https://game-icons.net/1x1/lorc/grouped-drops.html)** by Lorc. One falling apart into many is what a tag is: a cut across the sections rather than a place inside one.
+
 And each of the ten sections of the archive keeps a mark of its own, in the bar above the page and standing behind the title of everything filed there:
 
-| Section    | Icon                                                                        | By         |
-| ---------- | --------------------------------------------------------------------------- | ---------- |
+| Section    | Icon                                                                          | By         |
+| ---------- | ----------------------------------------------------------------------------- | ---------- |
 | Beasts     | [Beast eye](https://game-icons.net/1x1/lorc/beast-eye.html)                   | Lorc       |
 | Characters | [Totem head](https://game-icons.net/1x1/lorc/totem-head.html)                 | Lorc       |
 | Customs    | [Ceremonial mask](https://game-icons.net/1x1/delapouite/ceremonial-mask.html) | Delapouite |

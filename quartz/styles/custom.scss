@@ -35,7 +35,9 @@
   // The colour the mobile browser paints its own bars with, sampled off the
   // landing's `body` (see the "browser's own chrome" section). It is the hero
   // gradient's own colour along its top edge, so the strip above the hero reads
-  // as part of the artwork. The hero fades out of it; the footer sits in it.
+  // as part of the artwork, and the hero fades out of it. The footer does not
+  // sit in it: the closing bar is the top bar's ink, and the two bars frame the
+  // page between them.
   --ww-chrome: #2b1813;
   // The page's own ground: the colour a reader sees behind the whole document.
   // It is painted by #quartz-root rather than by body, because body is now the
@@ -101,8 +103,9 @@ body {
   padding: 30px 24px 40px;
 }
 
-// The frame draws a rule between the body and the page footer. The footer band
-// carries its own top border, so this only ever doubled it.
+// The frame draws a rule between the body and the page footer — the same rule
+// the prose uses between passages, which read as leftover page rather than an
+// ending. The closing bar carries its own red hairline instead.
 .center > hr {
   display: none;
 }
@@ -123,8 +126,27 @@ body {
 // index, where the roots panel and the footer are the same colour and should
 // close the page as one block. The landing used to zero this on its own; it was
 // never a landing problem.
-.page > #quartz-body {
+//
+// The grid is also what puts the closing bar on the bottom edge of the SCREEN
+// rather than wherever a short page happens to stop — a tag page holding six
+// cards would otherwise end its footer halfway up the viewport with bare ground
+// below it. Those two row items sit in rows 1 and 3 of the full-width frame
+// (`.page-header` carries grid-area: grid-header, but it is a descendant of
+// `.center`, not a grid item, so that declaration is inert and the middle row
+// is always empty); giving row 1 the slack hands it to the body. This was the
+// landing's own rule until every page turned out to want it.
+//
+// The `[data-frame]` qualifier is load-bearing, not decoration: base.scss sets
+// the rows through the `grid-template` SHORTHAND on
+// `.page[data-frame="full-width"] > #quartz-body`, which resets
+// grid-template-rows to auto and outweighs a bare `.page > #quartz-body`. Every
+// page carries the attribute, so matching on it ties that weight and wins on
+// source order — custom.scss is appended after base.scss in index.css.
+.page[data-frame] > #quartz-body {
   row-gap: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  grid-template-rows: 1fr auto auto;
 }
 
 // base.scss puts 6rem of margin above .page-header. In the three-column layout
@@ -174,9 +196,10 @@ body {
   text-align: left;
 }
 
-// Quartz's own title is dropped from the content and folder page types — the
-// wordmark in weirwood-chrome carries the tree mark beside it, which this
-// cannot. It is still the title on a tag page, so it keeps its styling.
+// Quartz's own title components are dropped from every page type — each one
+// draws its title inside its own block, over the emblem or the tag mark. Both
+// rules stay so that re-enabling either component gives a styled title rather
+// than a stock one.
 .page-title {
   margin: 0;
   font-family: var(--headerFont);
@@ -309,7 +332,13 @@ article > h4 {
   // Keep in step with the safe-area rule near the foot of this file: that one
   // re-declares the whole `padding` shorthand and loads later, so it is the one
   // that actually ships. A different value here is silently inert.
-  padding: 12px 24px;
+  //
+  // The sentence is held 40px off the edge of the SCREEN, not off the 1120px
+  // chrome measure the bar above it uses. A signature belongs in the corner of
+  // the page: measured like the bar, it drifts inward as the viewport grows and
+  // leaves a widening gap of bar to its right that reads as a mistake.
+  padding: 18px calc(var(--ww-band-pad) + env(safe-area-inset-right, 0px)) 18px
+    calc(var(--ww-band-pad) + env(safe-area-inset-left, 0px));
   opacity: 1;
   // The blessing is a sentence in the site's own voice, so it is set in the
   // maester's hand rather than the ledger's mono. Mono chrome is uppercase and
@@ -320,10 +349,15 @@ article > h4 {
   // rather than a slanted roman, and at 16px on this background it costs more
   // legibility than the flourish is worth.
   font-family: var(--bodyFont);
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0;
-  color: var(--gray);
-  border-top: 1px solid var(--lightgray);
+  color: #8a7b67;
+  // The red hairline, on the TOP edge — the header's own line, answered. An
+  // inset shadow rather than a border for the same reason the bar above uses
+  // one: one border-box, and the rule sits flush inside it. There is no other
+  // line here and no rule above it; the `.center > hr` the frame draws is
+  // switched off further up this file.
+  box-shadow: inset 0 1px 0 var(--secondary);
 
   & > p {
     margin: 0;
@@ -335,16 +369,16 @@ article > h4 {
     display: none;
   }
 
-  // One centred line, so the bar reads as a closing mark on the page rather
-  // than as navigation. Flex rather than `text-align` because the `links` list
-  // is a second child when it is used, and it should centre alongside the
-  // sentence instead of stacking against an edge. `text-align` still handles
-  // the sentence's own wrap onto a second row on a phone.
+  // Held to the right, as a signature at the end of the page rather than a
+  // caption under it. Flex rather than `text-align` because the `links` list is
+  // a second child when it is used, and it should sit alongside the sentence
+  // instead of stacking; `text-align` still handles the sentence's own wrap
+  // onto a second row on a phone.
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 8px 20px;
-  text-align: center;
+  text-align: right;
 
   & > ul {
     display: flex;
@@ -355,7 +389,7 @@ article > h4 {
   }
 
   a {
-    color: #8a7b67;
+    color: #b09c80;
     background-color: transparent;
 
     &:hover {
@@ -364,15 +398,18 @@ article > h4 {
   }
 }
 
-// One bar, one colour, everywhere: the warm chrome the front door shows.
+// One bar, one colour, everywhere: the ink the top bar is cut from.
 //
-// The landing used to reach this colour by painting nothing and letting its own
-// body background through, while every other page painted `--ww-panel` and came
-// out a colder, near-black bar. Painting it explicitly changes nothing on the
-// landing — same value, so Safari's sampled bottom bar still blends there (see
-// the note at the foot of this file) — and brings every other page into line.
+// This deliberately does NOT match `body`, which is the colour Safari samples
+// for its own bars and fills the rubber-band gutter with (see "the browser's
+// own chrome" at the foot of this file). Overscrolling past the end of the page
+// therefore opens the warm chrome colour below a near-black bar — which is
+// exactly what already happens above the top bar at the other end of the
+// scroll, and for the same reason: one flat colour can be sampled, and the
+// document is not painted in it. The bar's red hairline is what makes both ends
+// read as the frame rather than a seam.
 #quartz-body > footer {
-  background: var(--ww-chrome);
+  background: var(--ww-inset);
 }
 
 // --- prose -----------------------------------------------------------------
@@ -447,38 +484,17 @@ code {
 // timestamp on a chronicle entry breaks that, and a section index is sorted by
 // name rather than recency for the same reason.
 //
-// @quartz-community/content-meta is disabled, which covers entries, and the
-// card grid and roots strip are this site's own markup. The one place a date
-// still reached a page was Quartz's PageList — which the tag pages are built
-// from, and which is the only stock listing left in the layout.
+// There is nothing to hide here any more. @quartz-community/content-meta is
+// disabled, which covers entries, and every listing on the site is now this
+// site's own markup: the card grid, the roots strip, the tag groups. Quartz's
+// PageList was the last stock listing that still printed a date, and it went
+// with @quartz-community/tag-page — the rules that un-gridded its rows to get
+// the date out of the first column went with it. Should any page ever render a
+// `.section-li` again, the date comes back with it.
 //
 // created-modified-date stays ENABLED on purpose: the RSS feed sorts and stamps
-// its items from it, and a feed without dates is a broken feed. This hides the
-// date on the page, it does not stop it being computed.
-//
-// The listing row is a grid whose FIRST column is the date. Hiding just the
-// cell is not enough: the remaining child is then auto-placed into that first
-// track, which is `fit-content(8em)`, and the entry title gets squashed to
-// about eight characters. So the row stops being a grid at all.
-//
-// The specificity here is load-bearing, not defensive. index.css is linked
-// BEFORE the component stylesheets, so a rule of equal weight to
-// `.section-li > .section` loses the cascade outright and does nothing at all —
-// which is how the first version of this went in looking correct and changing
-// nothing. The id qualifier is what wins it.
-//
-// Popovers need their own selector because they are appended to `document.body`
-// and live OUTSIDE `#quartz-body`, so the first rule cannot reach them.
-#quartz-body .section-li > .section,
-body .popover .section {
-  display: block;
-}
-
-// The date cell itself, in both places. Nothing else declares `display` on it,
-// so this one wins on its own.
-.section-li > .section > .meta {
-  display: none;
-}
+// its items from it, and a feed without dates is a broken feed. Nothing renders
+// it on a page.
 
 // --- previews --------------------------------------------------------------
 // A popover collects every `.popover-hint` on the target page and stacks them
@@ -512,10 +528,12 @@ body .popover .section {
   }
 
   .ww-title-watermark,
-  .ww-section-watermark,
+  .ww-section-mark,
+  .ww-tag-mark,
   .ww-meta,
   .ww-roots,
   .ww-entries,
+  .ww-tag-groups,
   .ww-chips {
     display: none;
   }
@@ -542,6 +560,10 @@ body .popover .section {
   .ww-section-rule,
   .ww-section-count {
     display: none;
+  }
+
+  .ww-tag-title {
+    font-size: 22px;
   }
 }
 
@@ -587,10 +609,10 @@ body[data-slug="index"] {
     // prose but wrong for the front door: on a phone it framed the hero, the
     // count boxes and the footer rule in a strip of bare page background, so
     // nothing reached the edge of the screen. Articles keep the padding.
+    //
+    // The full-height grid that lets the hero absorb the slack is sitewide now
+    // — see the row-gap rule above — so this block is down to the padding.
     padding: 0;
-    min-height: 100vh;
-    min-height: 100dvh;
-    grid-template-rows: 1fr auto auto;
   }
 
   // The chain from the grid cell down to the hero, so `flex: 1` can reach it.
@@ -689,10 +711,13 @@ body:not([data-slug="index"]) .page-header > header {
 }
 
 // The bar sits on the bottom edge, where the home indicator is. Its background
-// and its top rule still run the full width — only the text insets.
+// and its red top rule still run the full width — only the sentence insets. The
+// side padding is restated because this rule re-declares the whole shorthand;
+// the home indicator is cleared by the bottom value alone.
 #quartz-body > footer {
-  padding: 12px calc(24px + env(safe-area-inset-right, 0px))
-    calc(12px + env(safe-area-inset-bottom, 0px)) calc(24px + env(safe-area-inset-left, 0px));
+  padding: 18px calc(var(--ww-band-pad) + env(safe-area-inset-right, 0px))
+    calc(18px + env(safe-area-inset-bottom, 0px))
+    calc(var(--ww-band-pad) + env(safe-area-inset-left, 0px));
 }
 
 // The reading column in landscape, where a cutout eats into one side. The bands
@@ -742,14 +767,14 @@ body[data-slug="index"] .ww-counts {
 // nothing changes — which is exactly what happened on the two attempts before
 // this one.
 //
-// What that buys: the footer bar, the strip under it, the gutter past it and
-// Safari's bottom bar are all `--ww-chrome` now, on every page — the landing's
-// ending, given to the whole site. The cost is the far end of the same rule:
-// pulling down at the top of an article opens the same warm colour above a
-// near-black bar, and on iOS the status strip warms with it. That was once
-// refused for articles as a new mismatch; it is the price of one flat colour
-// for both ends, and the bar's own red hairline and carved face make it read as
-// the frame rather than a seam.
+// What that buys: the gutter at both ends of the scroll, Safari's status strip
+// and Safari's bottom bar are all `--ww-chrome`, on every page — the landing's
+// own colour, given to the whole site. The cost is that neither bar is painted
+// in it: the top bar and the closing bar are both `--ww-inset`, so pulling the
+// page down at either end opens the warm colour against near-black. One flat
+// colour is all that can be sampled, and the red hairline each bar carries —
+// under the top one, over the bottom one — is what makes that read as the frame
+// rather than as a seam.
 //
 // A flat tint is the ceiling here. Safari samples one colour, so the tree and
 // the pinstripe cannot follow it up there; the hero fades out of this colour at
@@ -760,7 +785,7 @@ body[data-slug="index"] .ww-counts {
 // footer painted no background of its own, so both were showing the chrome
 // colour straight through and the whole lower third of the page warmed up with
 // the strip. The count boxes now paint `--light` themselves (see the landing
-// plugin), and the footer paints `--ww-chrome` explicitly, sitewide.
+// plugin), and the footer paints `--ww-inset`, sitewide.
 //
 // min-height is the short-page guard: the ground is #quartz-root's box, so
 // without it a page that does not fill the viewport would end its footer in the

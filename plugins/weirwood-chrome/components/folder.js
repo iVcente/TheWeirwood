@@ -49,7 +49,7 @@ export const WeirwoodFolder = (userOpts) => {
         section,
         size: 230,
         strokeWidth: 0.7,
-        class: "ww-section-watermark",
+        class: "ww-section-mark",
       }),
       h("div", { class: "ww-band-inner ww-section-hero-inner" }, [
         h("h1", { class: "ww-section-title" }, fileData.frontmatter?.title ?? section),

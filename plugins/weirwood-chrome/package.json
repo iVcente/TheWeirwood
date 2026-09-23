@@ -45,6 +45,9 @@
       "greensightLabel": {
         "type": "string"
       },
+      "tagLabel": {
+        "type": "string"
+      },
       "rootsHeading": {
         "type": "string"
       },

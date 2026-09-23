@@ -1,7 +1,7 @@
 import { h } from "preact"
 import { resolveRelative } from "@quartz-community/utils/path"
 import { Graph } from "@quartz-community/graph"
-import { Emblem, FaceMark, GreensightMark } from "./emblems.js"
+import { Emblem, FaceMark, GreensightMark, TagMark } from "./emblems.js"
 import { sectionOf, sectionTitle } from "./sections.js"
 import { graphOptions } from "./graph-config.js"
 import { chromeStyles } from "./styles.js"
@@ -10,6 +10,10 @@ import { chromeScript } from "./script.js"
 const defaultOptions = {
   // Announced to screen readers; the button itself is icon-only, like search.
   greensightLabel: "Greensight",
+  // What the bar's context slot says on a tag page. A tag belongs to no
+  // section, so the slot names the kind of page rather than a place in the
+  // tree — and deliberately NOT the tag itself, which the title below states.
+  tagLabel: "Tag",
 }
 
 export const WeirwoodHeader = (userOpts) => {
@@ -41,18 +45,35 @@ export const WeirwoodHeader = (userOpts) => {
     const label = sectionTitle(allFiles, section)
     const greensight = fileData.frontmatter?.greensight !== false
 
+    // A tag page has no section — sectionOf declines every tags/ slug — so the
+    // slot carries the tag mark and the word instead. On the tag index itself
+    // it is a plain span rather than a link back to the page being read, the
+    // same treatment the current section takes in a roots tile.
+    const isTag = slug === "tags" || slug.startsWith("tags/")
+    const isTagIndex = slug === "tags" || slug === "tags/index"
+    const tagSlot = isTag
+      ? h(
+          isTagIndex ? "span" : "a",
+          isTagIndex
+            ? { class: "ww-head-section", "aria-current": "page" }
+            : { class: "ww-head-section", href: resolveRelative(slug, "tags/index") },
+          [h(TagMark, { size: 16, class: "ww-head-emblem" }), h("span", {}, opts.tagLabel)],
+        )
+      : null
+
     return h("div", { class: "ww-head" }, [
       h("div", { class: "ww-head-left" }, [
         h("a", { class: "ww-head-brand", href: resolveRelative(slug, "index") }, [
           h(FaceMark, { size: 26, class: "ww-head-mark" }),
           h("span", { class: "ww-head-wordmark" }, cfg.pageTitle),
         ]),
-        section && h("span", { class: "ww-head-divider", "aria-hidden": "true" }),
-        section &&
-          h("a", { class: "ww-head-section", href: resolveRelative(slug, section) }, [
-            h(Emblem, { section, size: 17, strokeWidth: 1.8, class: "ww-head-emblem" }),
-            h("span", {}, label),
-          ]),
+        (section || tagSlot) && h("span", { class: "ww-head-divider", "aria-hidden": "true" }),
+        section
+          ? h("a", { class: "ww-head-section", href: resolveRelative(slug, section) }, [
+              h(Emblem, { section, size: 17, strokeWidth: 1.8, class: "ww-head-emblem" }),
+              h("span", {}, label),
+            ])
+          : tagSlot,
       ]),
       // `greensight: false` in the frontmatter drops the button — and, below,
       // the graph it would open. For a page that is not a node in the graph,

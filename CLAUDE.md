@@ -86,7 +86,9 @@ one box per key it finds, from a named list (`type`, `house`, `era`, `book`,
 number and the kind of boxes vary per entry and an absent key simply has no box.
 Adding a box means adding a frontmatter key, not editing a component.
 
-Two keys do not become boxes. `tags:` is the chip row under the title, and
+Two keys do not become boxes. `tags:` is the chip row under the title — each chip
+leads to that tag's own page, which gathers every page carrying it, grouped by
+section — and
 `status: stub` (or `stub: true`) raises a **stub badge** at the end of that row
 — which is why `status` is deliberately absent from the box list.
 
@@ -133,7 +135,7 @@ Quartz's, so the local graph/backlinks and the published site stay in sync.
 
 ### Page structure
 
-Three page types, and each one runs the same way: **bands run edge to edge and
+Four page types, and each one runs the same way: **bands run edge to edge and
 paint their own background; only what is inside them is measured.** That is why
 `.center.full-width` is deliberately _not_ capped in `custom.scss` — capping the
 column is what would strand a band's background in mid-air on a wide screen. The
@@ -146,11 +148,12 @@ reading column, about 68ch; `weirwood-article` re-points `--ww-band` at it so an
 entry's boxes and its roots band line up with the paragraph beneath them.
 
 - **The bar** (every page but the front door): carved face, wordmark, then the
-  section being read. **No breadcrumbs anywhere** — the bar states the section,
-  the page states the page. Two 32px icon buttons on the right: greensight, then
-  search.
+  section being read — or, on a tag page, the tag mark and the word `TAG`, since
+  a tag belongs to no section. **No breadcrumbs anywhere** — the bar states the
+  section, the page states the page. Two 32px icon buttons on the right:
+  greensight, then search.
 - **A section index** (`content/<folder>/index.md`): hero with the section's
-  emblem behind the title and the index note's own prose as the description,
+  emblem standing above the title and the index note's own prose as the description,
   then a card per entry, then the "roots of the tree" strip — one greensight
   panel and a tile for every section, the current one marked and not a link.
 - **An entry**: title block over the section emblem, the frontmatter boxes, then
@@ -158,14 +161,35 @@ entry's boxes and its roots band line up with the paragraph beneath them.
   count. **There is deliberately no backlink list**: the connections live in the
   graph, which keeps that band one height whether seven pages lead here or
   twenty-five, which is the only reason it can sit above the prose at all.
+- **A tag page** (`/tags/<slug>`): a tag is a cut **across** the sections, not a
+  place inside one, and the whole page follows from that. The section hero's own
+  band, standing the tag mark where a section stands its emblem, a kicker naming
+  what the page is, then the tag's own slug as the title
+  (uppercased by the type, never prettified), then the tagged pages **grouped by
+  the section each one lives in**, in the canonical section order — the same
+  alphabetical order the roots tiles and the count boxes use, so the page is laid
+  out the same way whichever tag it is. The list is the end of the page: no
+  related-tags band, **no tag chips on those cards** (they all carry the tag
+  being read) and **no description** (a tag has no frontmatter to write one in).
+  `/tags` lists every tag as a card, and the bar's own context slot is what
+  reaches it from a tag page.
 
 **Section emblems** are one inline SVG per top-level folder, keyed by folder
 name, in `plugins/weirwood-chrome/components/emblems.js`. They come from
 game-icons.net under CC BY 3.0 — each a single filled path on a 512 viewBox,
 with the black ground and the baked `fill` stripped so `fill: currentColor`
 inherits the palette. They are used at three sizes (17px in the bar, 26px in a
-tile, 200–230px as a watermark) and carry no strokes, so nothing needs tuning
-per size. **Every icon used on the site must be credited on `/colophon`** —
+tile, 200–230px as the mark over a hero or behind an entry's title) and carry no
+strokes, so nothing needs tuning per size.
+
+**A mark stands above the title everywhere except an entry.** A section index and
+a tag page set theirs in the flow over the title (`.ww-section-mark`,
+`.ww-tag-mark`: 230px, parchment, block, 6px of gap); only `weirwood-article`
+puts one _behind_ the words, dim red at 12% with a glow, which is what makes an
+entry read as an entry. That was settled the long way round: `.ww-section-mark`
+was written as a watermark and then never given a rule, so it had always been
+rendering in the flow — which turned out to be the better page, and is now
+written down rather than inherited from an absent rule. **Every icon used on the site must be credited on `/colophon`** —
 that page is the only place the CC BY notice appears, and the licence requires
 it stay reachable. To add one: take the `d` from
 `https://game-icons.net/icons/ffffff/transparent/1x1/<author>/<icon>.svg` (the
@@ -178,6 +202,12 @@ on a 24 viewBox — which is the only reason `Emblem` still takes a
 `strokeWidth`: it reaches the fallback and nothing else. The same source and
 the same rules cover the **greensight glyph** (`GreensightMark`), used at 18px
 in the header button and 26–32px in the greensight panels.
+
+The **tag mark** in that file (`TagMark`) comes from the same source under the
+same rules, and is credited on `/colophon` with the rest. It is one mark at both
+of its sizes — 16px in the bar, 230px behind a tag hero — and deliberately a
+fixed one for every tag: a tag has no artwork of its own, and giving it any would
+mean drawing a new mark for every word anybody types into frontmatter.
 
 ### Theming
 
@@ -268,7 +298,11 @@ from the page with no error. Write property names in comments bare, and check
   two plugins rather than one, and why `weirwood-chrome` can still own the folder page
   type: a page type's `body` is called directly and never goes through the registry.
 - **A page type's `generate` runs even when its `match` never wins, and a virtual page is
-  emitted with the layout of the page type that _generated_ it.** So layering a
+  emitted with the layout AND THE BODY of the page type that _generated_ it.** `match` is
+  only ever consulted for real files on disk, which is why both this site's own page types
+  own their generation, and why the plugins they replace are disabled rather than layered
+  under. A higher-priority page type that does not generate renders nothing at all for a
+  virtual page; two that both generate emit the same slug twice. So layering a
   higher-priority folder page type over `@quartz-community/folder-page` looks correct —
   it does win `match` for every folder with an `index.md` — while every folder _without_
   one is still emitted by the other plugin, with the stock listing and no hero. Own the
@@ -309,20 +343,33 @@ This site's own plugins:
   one article becomes a cell, labelled and counted automatically).
 - `plugins/weirwood-chrome` — the top bar on every page but the front door (carved face,
   wordmark, the section being read, greensight), the **section-index page type** (hero,
-  entry cards, "roots of the tree" strip), and the ten section emblems all three page
-  types draw. It also ships the site's only `afterDOMLoaded` script.
+  entry cards, "roots of the tree" strip), and the ten section emblems every page type
+  draws. It also ships the site's only `afterDOMLoaded` script.
 - `plugins/weirwood-article` — the title block (emblem watermark, title, `words`, chips),
   the frontmatter boxes and the "roots of this page" band, all above the prose.
+- `plugins/weirwood-tags` — the **tag page type**: the hero, the tagged pages grouped by
+  section, and the card index at `/tags`. It replaces
+  `@quartz-community/tag-page` rather than layering over it, and generation has to move
+  with it — see the page-type gotcha below. It is a page type and nothing else: no
+  `components` block in its manifest, no `layout:` block in the config, and its CSS ships
+  anyway, because a page type's body is collected from the registry like any component.
+  `/tags` is the one tag page that is a real file (`content/tags/index.md`, `unlisted`),
+  which is what lets it be reached through `match` at all.
 - `plugins/weirwood-footer` — replaces `@quartz-community/footer`, whose "Created with"
   string is hardcoded and localised (`links` is the only option it exposes), so the credit
-  bar can speak in-world. One centred sentence with a link set into it, built from the
+  bar can speak in-world. One right-aligned sentence with a link set into it, built from the
   `blessing` / `linkLabel` / `linkHref` / `coda` options in `quartz.config.yaml`; the
   copyright, the year and the Quartz version are all gone. **The link points at
   `/colophon` and must keep pointing somewhere that carries the heart tree's CC BY
   attribution** — that page is the only place the notice appears, and the licence requires
   it stay reachable. Quartz's own credit moved there too; it is courtesy either way, since
   the notice MIT asks for is `LICENSE.txt`. Ships no CSS — the bar is styled by
-  `#quartz-body > footer` in `custom.scss`.
+  `#quartz-body > footer` in `custom.scss`, which paints it in the top bar's ink with the
+  red hairline on its **top** edge, holds the sentence 40px off the right edge of the
+  screen (a signature in the corner, not a caption on the 1120px measure), and
+  deliberately does not match `body` (see "the browser's own chrome" in that file). The
+  bar sits on the bottom edge of the viewport on every page, short ones included — that
+  comes from the full-height `#quartz-body` grid, not from the footer itself.
 - `plugins/weirwood-touch-icon` — an emitter, with no component and no `layout:` block.
   WebKit asks the site **root** for `/apple-touch-icon-precomposed.png` and then
   `/apple-touch-icon.png` whenever it wants a high-resolution icon and the document

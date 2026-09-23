@@ -54,6 +54,18 @@
       "ctaLink": {
         "type": "string"
       },
+      "worldLabel": {
+        "type": "string"
+      },
+      "worldLink": {
+        "type": "string"
+      },
+      "tagsLabel": {
+        "type": "string"
+      },
+      "tagsLink": {
+        "type": "string"
+      },
       "order": {
         "type": "array",
         "items": {

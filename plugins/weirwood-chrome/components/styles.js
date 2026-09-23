@@ -106,11 +106,13 @@ export const chromeStyles = `
   white-space: nowrap;
 }
 
-.ww-head-section:hover {
+/* Scoped to the anchor: on the tag index the slot is a span, and a slot that
+   is not going anywhere should not light under the cursor. */
+a.ww-head-section:hover {
   color: var(--dark);
 }
 
-.ww-head-section:hover .ww-head-emblem {
+a.ww-head-section:hover .ww-head-emblem {
   color: var(--tertiary);
 }
 
@@ -203,6 +205,25 @@ export const chromeStyles = `
 
 .ww-section-hero-inner {
   position: relative;
+}
+
+/* The section's emblem, standing above the title rather than behind it.
+   Deliberate now: the class carried no rule at all — only a size in the narrow
+   media query and a hide in the popover rules, both of which took it for a
+   watermark — so the mark simply rendered as an inline image in the flow. That
+   is where the page ended up and where it stays. A mark BEHIND the words is the
+   article title block's alone; it is what makes an entry read as an entry
+   rather than as the front of a section.
+
+   Everything here states what the missing rule was already computing, so the
+   page does not move: the parchment body colour inherits into fill: currentColor,
+   and 230px is the size folder.js asks for. display: block is the one change —
+   it replaces the inline line box, whose descender was holding the gap under
+   the mark, with a margin that can be set. */
+.ww-section-mark {
+  display: block;
+  margin: 0 auto 6px;
+  color: var(--darkgray);
 }
 
 .ww-section-title {
@@ -489,7 +510,7 @@ a.ww-tile:hover .ww-tile-label {
     font-size: 32px;
   }
 
-  .ww-section-watermark {
+  .ww-section-mark {
     width: 180px;
     height: 180px;
   }

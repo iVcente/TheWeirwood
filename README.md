@@ -30,7 +30,8 @@ Start with the frontmatter block — see `CLAUDE.md` for the schema.
 **The frontmatter is the page furniture.** Each key you fill in becomes one of
 the boxes under the title; leave a key out and there is simply no box for it.
 `words:` sets the italic motto under the title, `tags:` become the chips beside
-it, and `status: stub` raises the _stub_ badge. Anything an entry needs that no
+it — each one leading to that tag's own page, where every page carrying it is
+gathered and grouped by section — and `status: stub` raises the _stub_ badge. Anything an entry needs that no
 other page shares goes in `facts:`, an ordered map that adds one box per key.
 No component needs editing to add a box.
 

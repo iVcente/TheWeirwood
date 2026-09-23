@@ -182,8 +182,14 @@ plugins:
   # any folder without an index.md with the stock dated listing, silently.
   - source: "@quartz-community/folder-page"
     enabled: false
+  # Replaced by ./plugins/weirwood-tags, which registers the tag page type
+  # itself — generation included, for the same reason weirwood-chrome owns the
+  # section index. Every tag page but /tags is a VIRTUAL page, and a virtual
+  # page is emitted with the body of whichever page type GENERATED it, so
+  # leaving generation here would have left the new design unrendered while
+  # every tag still looked wired up.
   - source: "@quartz-community/tag-page"
-    enabled: true
+    enabled: false
   # The design is a single-column broadsheet with no sidebars, so the explorer
   # has nowhere to live. Navigation is the top bar, the landing count boxes, the
   # roots tiles at the foot of a section index, and in-page links.
@@ -211,9 +217,10 @@ plugins:
     layout:
       position: header
       priority: 20
-  # Kept for tag pages, and excluded from `content` and `folder` below: on those
-  # the title belongs inside the glowing title block, over the section emblem,
-  # which means weirwood-article and weirwood-chrome have to draw it themselves.
+  # Excluded from every page type below: the title belongs inside the glowing
+  # title block, over the emblem or the tag mark, which means weirwood-article,
+  # weirwood-chrome and weirwood-tags each draw their own. Kept enabled so a
+  # page type that has no title block of its own still states its name.
   - source: "@quartz-community/article-title"
     enabled: true
     layout:
@@ -319,6 +326,16 @@ plugins:
     layout:
       position: beforeBody
       priority: 30
+  # Tags: the tag page type — the tag hero over its radiating mark, the tagged
+  # entries grouped by the section each one lives in, and the kindred-tags band
+  # that closes the page. It also renders /tags, which is a real (and unlisted)
+  # file rather than a generated one, as the card index of every tag.
+  #
+  # No `layout:` block: a page type's body is called directly, never placed by
+  # the layout loader, and its CSS ships regardless — componentResources
+  # collects from the registry.
+  - source: ./plugins/weirwood-tags
+    enabled: true
   # Footer: the stock "Created with Quartz v5.0.0 © 2026" in the site's voice,
   # and without the copyright — Quartz is MIT-licensed and the notice the licence
   # asks for lives in LICENSE.txt, so the credit here is courtesy. That courtesy
@@ -439,11 +456,12 @@ layout:
       positions:
         left: []
         right: []
-    # Tag pages keep Quartz's own title and listing; the bar still names the
-    # site and gets them home.
+    # A tag page. weirwood-tags supplies the whole body — hero, section groups,
+    # kindred band — so, as on a section index, nothing belongs above it.
     tag:
       template: full-width
       exclude:
+        - "@quartz-community/article-title"
         - "@quartz-community/table-of-contents"
         - weirwood-article
       positions:
