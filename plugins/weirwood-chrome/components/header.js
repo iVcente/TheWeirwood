@@ -13,7 +13,11 @@ const defaultOptions = {
   // What the bar's context slot says on a tag page. A tag belongs to no
   // section, so the slot names the kind of page rather than a place in the
   // tree — and deliberately NOT the tag itself, which the title below states.
-  tagLabel: "Tag",
+  //
+  // "Thread" is what a tag is called in the site's own voice; the frontmatter
+  // key, the URL and every ww-tag-* class still say tag. See the note in
+  // weirwood-tags.
+  tagLabel: "Thread",
 }
 
 export const WeirwoodHeader = (userOpts) => {
@@ -33,7 +37,7 @@ export const WeirwoodHeader = (userOpts) => {
     neighbourhood: Graph(graphOptions("neighbourhood")),
   }
 
-  const Header = ({ fileData, allFiles, cfg, ...rest }) => {
+  const Header = ({ fileData, allFiles, cfg, ctx, ...rest }) => {
     const slug = fileData.slug
     // The front door states its own name in the wordmark and keeps only the
     // search button, resting over the canopy. It is also excluded in
@@ -61,9 +65,19 @@ export const WeirwoodHeader = (userOpts) => {
         )
       : null
 
+    // Page-relative everywhere but the 404, which is the one page served at a
+    // URL that is not its own: the host hands 404.html back for whatever path
+    // failed, so "./index" would resolve against /a/deep/path/ and lead
+    // nowhere. Root-relative is what Quartz's own NotFound body uses, and the
+    // dev server strips the base path itself, which is why serve mode is "/".
+    const home =
+      slug === "404"
+        ? (ctx?.argv?.serve ? "/" : new URL(`https://${cfg.baseUrl ?? "example.com"}`).pathname)
+        : resolveRelative(slug, "index")
+
     return h("div", { class: "ww-head" }, [
       h("div", { class: "ww-head-left" }, [
-        h("a", { class: "ww-head-brand", href: resolveRelative(slug, "index") }, [
+        h("a", { class: "ww-head-brand", href: home }, [
           h(FaceMark, { size: 26, class: "ww-head-mark" }),
           h("span", { class: "ww-head-wordmark" }, cfg.pageTitle),
         ]),
@@ -98,14 +112,20 @@ export const WeirwoodHeader = (userOpts) => {
       // promises; an entry opens its own neighbourhood, which is what the band
       // above the prose asks about. The bar's button opens whichever the page
       // it sits on would.
+      //
+      // The 404 takes the overview for the same reason a section index does,
+      // arrived at from the other end: it is not a node in the graph at all, so
+      // a neighbourhood of it is an empty well. The whole wood is also the more
+      // useful thing to hand someone who has just landed nowhere.
       greensight &&
         h(
           "div",
           { class: "ww-graph-host", "aria-hidden": "true" },
-          h(slug.endsWith("/index") ? Graphs.overview : Graphs.neighbourhood, {
+          h(slug.endsWith("/index") || slug === "404" ? Graphs.overview : Graphs.neighbourhood, {
             fileData,
             allFiles,
             cfg,
+            ctx,
             ...rest,
           }),
         ),

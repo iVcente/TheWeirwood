@@ -22,10 +22,12 @@ const defaultOptions = {
   // way in into a menu of three — three stacked slabs on a phone, out of a
   // landing that is meant to be a single screen.
   //
-  // One word, in the same voice the count labels are set in. The line sits in a
-  // row of ten section names; a sentence there would be the only prose in the
-  // block and would read as a notice rather than as the eleventh way in.
-  tagsLabel: "Tags",
+  // One word, set in the two CTAs' own type — the three ways off this page
+  // speak in one voice, and what ranks this one below them is that it wears no
+  // border and no ground. The line sits in a row of ten section names; a
+  // sentence there would be the only prose in the block and would read as a
+  // notice rather than as the eleventh way in.
+  tagsLabel: "Threads",
   tagsLink: "tags/index",
   // Optional explicit ordering of the count boxes; anything not listed follows
   // alphabetically. Sections themselves are always discovered, never listed.

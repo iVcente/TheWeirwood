@@ -71,6 +71,7 @@ house: "..." # optional; omit if N/A
 seat: "..." # optional
 region: "..." # optional
 tags: ["..."] # cross-cutting views; drawn as chips under the title
+#              (called "threads" on the page; the key stays `tags`)
 era: "..." # in-world period; use this for ASOIAF dates too (e.g. "48 AC")
 book: "Fire & Blood" # source work
 status: stub # stub | draft | complete
@@ -135,7 +136,7 @@ Quartz's, so the local graph/backlinks and the published site stay in sync.
 
 ### Page structure
 
-Four page types, and each one runs the same way: **bands run edge to edge and
+Five page types, and each one runs the same way: **bands run edge to edge and
 paint their own background; only what is inside them is measured.** That is why
 `.center.full-width` is deliberately _not_ capped in `custom.scss` — capping the
 column is what would strand a band's background in mid-air on a wide screen. The
@@ -162,7 +163,32 @@ entry's boxes and its roots band line up with the paragraph beneath them.
   graph, which keeps that band one height whether seven pages lead here or
   twenty-five, which is the only reason it can sit above the prose at all.
 - **A tag page** (`/tags/<slug>`): a tag is a cut **across** the sections, not a
-  place inside one, and the whole page follows from that. The section hero's own
+  place inside one, and the whole page follows from that. **A reader never sees
+  the word "tag": on this site they are called _threads_** — the bar says
+  `THREAD`, the front door's strip says `THREADS`, `/tags` is titled "All
+  Threads" and counts "7 threads · across 12 pages". Only the words changed. The
+  frontmatter key is still `tags:`, the URL is still `/tags/<slug>`, the plugin
+  is still `weirwood-tags` and every class is still `ww-tag-*` — those are
+  Quartz's and the stylesheet's, and renaming them would break the page
+  generation for a synonym.
+
+  **The URL was looked at and deliberately left alone**, so this is not an
+  oversight to tidy up. `@quartz-community/graph` hardcodes `tags/` four times
+  in its bundle — it builds each tag node's id as `"tags/" + tag`, tests
+  `startsWith("tags/")` to decide a node is a tag, slices five characters off to
+  label it `#dragons`, and tests the prefix again to colour it — and it exposes
+  no `tagPrefix`. The greensight works today because that synthesized id is
+  byte-identical to the real page's slug in `contentIndex.json`, so the node
+  **is** the page. Move the pages to `/threads/` and the two ids come apart: a
+  dead `tags/<slug>` node plus a second, edgeless `threads/<slug>` one — two
+  nodes per thread in the site's main way around, one of them 404ing. Moving the
+  path therefore costs either a redirect stub per thread (and a hop on every
+  greensight click) or a vendored fork of the graph plugin. Neither is worth a
+  word in an address bar. The copy lives in three plugin defaults
+  (`weirwood-chrome`'s `tagLabel`, `weirwood-landing`'s `tagsLabel`,
+  `weirwood-tags`' `indexTitle` and its `threads()` helper) plus the title in
+  `content/tags/index.md`; this file and the code keep saying tag throughout, so
+  that the docs and the identifiers agree. The section hero's own
   band, standing the tag mark where a section stands its emblem, a kicker naming
   what the page is, then the tag's own slug as the title
   (uppercased by the type, never prettified), then the tagged pages **grouped by
@@ -173,6 +199,20 @@ entry's boxes and its roots band line up with the paragraph beneath them.
   being read) and **no description** (a tag has no frontmatter to write one in).
   `/tags` lists every tag as a card, and the bar's own context slot is what
   reaches it from a tag page.
+- **The 404** (`/404.html`, served for whatever path failed): the bar with an
+  **empty context slot** — a page that is not there is in no section — then one
+  band and nothing else. In it stands the front door's own heart tree,
+  `quartz/static/weirwood.svg` at 150px, loaded through an `img` exactly as
+  `weirwood-landing` loads it: **one copy of the artwork, one baked fill**, and
+  no way to recolour it from CSS (an SVG in an `img` is an isolated document).
+  Below it the `404 · no such root` kicker (the only place the number is
+  printed), the notice, and **one** quiet button back to the front door. No
+  search box, no suggestions, no popular-pages list — the bar above still
+  carries both search and the greensight, and the greensight opens the **whole
+  archive** here rather than a neighbourhood, because this page is not a node in
+  the graph at all. Every link on it is **root-relative**: this is the one page
+  served from a URL that is not its own, so a page-relative href would resolve
+  against the path that failed.
 
 **Section emblems** are one inline SVG per top-level folder, keyed by folder
 name, in `plugins/weirwood-chrome/components/emblems.js`. They come from
@@ -319,6 +359,23 @@ from the page with no error. Write property names in comments bare, and check
 - **Favicons cache hard.** A changed icon can keep showing the old one — or a different
   project's, on `localhost:8080` — long after a normal reload. Confirm the file itself by
   opening `/static/icon.png` directly, then check the tab in a private window.
+- **A frame's NAME is a CSS contract.** `renderPage` stamps it on the page as
+  `data-frame`, and `base.scss` hangs the whole single-column grid off
+  `.page[data-frame="full-width"]` — one auto column, three stacked areas. A frame under
+  any other name misses every one of those rules and inherits the stock three-column
+  grid, where `.center` (which has no `grid-area` of its own) is auto-placed into the
+  320px left-sidebar column. Nothing errors and nothing warns; the page simply arrives in
+  a gutter. A new frame must restate that grid — `NotFoundFrame` does it in its own
+  `css`, which Quartz inlines into `<body>` only on the pages that frame renders. Use
+  longhands there: `grid-template` as a shorthand would silently reset the
+  `grid-template-rows: 1fr auto auto` that `custom.scss` sets on every `[data-frame]`,
+  which is what puts the closing bar on the bottom edge of the screen.
+- **A local plugin that declares ONLY frames is silently skipped.** The loader asks a
+  local plugin's entry point for a category; when it cannot find one it falls through to
+  `manifest.components`, and only *then* loads `manifest.frames`. Declare frames with no
+  components and the plugin is dropped with a "could not determine category" warning — so
+  a frames-only plugin must either declare `category: "component"` and ship a component
+  (what `weirwood-notfound` does) or be a real transformer/emitter/pageType.
 
 ### Custom components
 
@@ -355,6 +412,31 @@ This site's own plugins:
   anyway, because a page type's body is collected from the registry like any component.
   `/tags` is the one tag page that is a real file (`content/tags/index.md`, `unlisted`),
   which is what lets it be reached through `match` at all.
+- `plugins/weirwood-notfound` — the 404: the heart tree, the notice, and the one way
+  back. It is the one page type this site does **not** own. Quartz's `NotFoundPageType`
+  is appended by the config loader itself (`quartz/plugins/loader/config-loader.ts`), so
+  it is not in `quartz.config.yaml` and cannot be disabled — and a second page type
+  generating slug `404` would simply emit `404.html` twice and leave the last write
+  standing. So the page type stays Quartz's and its **frame** is replaced instead: this
+  plugin ships `NotFoundFrame` (`frames.js`, declared under `quartz.frames` in its
+  `package.json` and reached through the `./frames` export), which renders the header and
+  `beforeBody` slots and then stops. The stock `NotFound` body — "404 / Either this page
+  is private or doesn't exist" — is simply never called. The one thing in it worth
+  keeping, the case-insensitive redirect that saves `/Characters`, is ported into the
+  component. A frames-only plugin would be skipped by the loader, which is why the
+  manifest declares `category: ["pageType", "component"]` and the hero is a placed
+  component like any other.
+
+  It also registers **a page type that owns no page** — `match` always false, no
+  `generate` — for one reason: `treeTransforms`. The dispatcher collects those from
+  every page type, not just the one rendering, and `renderPage` runs them against the
+  live `componentData` immediately before `<Head>`. That is the only hook that reaches
+  the head, and it is what renames the 404's tab from Quartz's i18n `"Not Found"` to
+  `No such root` (and its meta description from the same string to the notice on the
+  page). The `head` is not a slot any layout, frame or `byPageType` block can set, and
+  the only knob in `quartz.config.yaml` — `pageTitleSuffix` — appends to all 23 pages to
+  rename one. The alternative was a second `LOCAL MODIFICATION`; this keeps `Head.tsx`
+  the only core file an upgrade can quietly undo.
 - `plugins/weirwood-footer` — replaces `@quartz-community/footer`, whose "Created with"
   string is hardcoded and localised (`links` is the only option it exposes), so the credit
   bar can speak in-world. One right-aligned sentence with a link set into it, built from the
@@ -396,4 +478,18 @@ the build output.
 - **Images:** optimize to WebP at reasonable dimensions before committing; embed with
   `![[image.webp]]`.
 - **File naming:** lowercase, hyphenated slugs (`the-faith-militant-uprising.md`).
+- **Punctuation is literal, and content is ASCII.** Write `--`, `'` and `"`; never `—`,
+  `–`, `’` or `“ ”`. SmartyPants is **off**
+  (`@quartz-community/github-flavored-markdown`, `enableSmartyPants: false`), because it
+  rewrote every `--` in the Markdown into an em dash and left the source and the page
+  disagreeing about what had been written. That switch is the plugin's only lever — it
+  forwards no options to remark-smartypants — so it takes the straight-to-curly quote
+  conversion with it, which is the point: re-enabling it to get curly quotes back brings
+  the dashes back too. The rule covers `content/` and every string the site renders; the
+  dev-facing prose in this file and in code comments is not held to it.
+  **The one non-ASCII character on the rendered site is the interpunct `·`**, and it is
+  deliberate: it is a separator the design specifies — the 404 kicker, the tag count
+  lines, the array values in an entry's metadata boxes — never something the Markdown was
+  rewritten into. Check with
+  `grep -rnP '[^\x00-\x7F]' --include='*.md' content`, which should come back empty.
 - **Portability:** content stays plain Markdown in Git — every tool here is swappable.

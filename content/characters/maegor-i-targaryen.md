@@ -3,7 +3,7 @@ title: "Maegor I Targaryen"
 type: character
 house: "Targaryen"
 tags: ["kings", "dragonriders"]
-era: "Reign of Maegor I (42–48 AC)"
+era: "Reign of Maegor I (42-48 AC)"
 book: "Fire & Blood"
 status: stub
 ---

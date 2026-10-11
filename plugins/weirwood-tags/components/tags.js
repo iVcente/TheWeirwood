@@ -19,7 +19,7 @@ const defaultOptions = {
   indexKicker: "Every thread in the archive",
   // The hero's title on /tags. The frontmatter title of content/tags/index.md
   // wins over it when that file sets one.
-  indexTitle: "All tags",
+  indexTitle: "All threads",
   // Pages at the repo root belong to no section. Only the colophon is one
   // today, and it carries no tags — but a tagged page could be moved to the
   // root, and it should not vanish from its own tag page.
@@ -34,6 +34,13 @@ const tagsOf = (file) => (file?.frontmatter?.tags ?? []).flatMap(getAllSegmentPr
 const titleOf = (file) => file?.frontmatter?.title ?? file?.slug
 
 const pages = (n) => `${n} ${n === 1 ? "page" : "pages"}`
+
+/**
+ * What a tag is CALLED. The frontmatter key, the URL and every class name in
+ * here still say tag, because those are Quartz's and the stylesheet's; the word
+ * a reader sees is a thread, which is what both kickers above have always said.
+ */
+const threads = (n) => `${n} ${n === 1 ? "thread" : "threads"}`
 
 /** "across 5 sections", but "in 1 section" — the preposition changes with the count. */
 const sections = (n) => (n === 1 ? "in 1 section" : `across ${n} sections`)
@@ -129,7 +136,7 @@ export const WeirwoodTags = (userOpts) => {
           kicker: opts.indexKicker,
           title: fileData.frontmatter?.title ?? opts.indexTitle,
           description: hasProse ? htmlToJsx(tree) : fileData.description,
-          count: `${all.length} ${all.length === 1 ? "tag" : "tags"} · ${acrossPages(tagged.size)}`,
+          count: `${threads(all.length)} · ${acrossPages(tagged.size)}`,
         }),
         h(
           "div",

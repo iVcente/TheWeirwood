@@ -79,6 +79,17 @@ plugins:
     order: 30
   - source: "@quartz-community/github-flavored-markdown"
     enabled: true
+    options:
+      # OFF. SmartyPants rewrote every `--` in the Markdown into an em dash, so
+      # the source and the page disagreed about what had been written. The text
+      # now renders as it is typed: `--` stays `--`, and an em dash on the page
+      # is an em dash in the file.
+      #
+      # This is the only lever the plugin exposes — it passes no options to
+      # remark-smartypants — so it takes the straight-to-curly quote and
+      # apostrophe conversion with it. That is the trade, and it is the same
+      # bargain: quotation marks now read the way they were written too.
+      enableSmartyPants: false
     order: 40
   # No sidebar to host it, and the broadsheet reads top-to-bottom.
   - source: "@quartz-community/table-of-contents"
@@ -336,6 +347,35 @@ plugins:
   # collects from the registry.
   - source: ./plugins/weirwood-tags
     enabled: true
+  # Not found: the front door's heart tree, small, over the notice and the one
+  # way back. Renders nothing off /404.
+  #
+  # This plugin also ships the `notfound` FRAME, which is what actually keeps
+  # Quartz's stock 404 body off the page; see layout.byPageType."404" at the
+  # foot of this file. The component is placed in beforeBody like the landing
+  # and the article furniture, because that is the slot the frame renders.
+  - source: ./plugins/weirwood-notfound
+    enabled: true
+    options:
+      # What the browser tab says. Quartz's own answer is its i18n string,
+      # "Not Found" — the one tab on this site that would be an error message
+      # rather than a name. This is the kicker below without the number, so the
+      # tab and the page say the same thing. See the note on the `plugin` export
+      # for why renaming it takes a page type that owns no page.
+      tabTitle: "No such root"
+      # The mono line above the title, uppercased by the type. The number is
+      # printed here and nowhere else on the page.
+      kicker: "404 · no such root"
+      # Other endings, if this one wears thin:
+      #   This page was never carved.
+      #   No root of the tree reaches here.
+      #   The wood does not know this name.
+      title: "The trees do not remember this page."
+      body: "Either it was never planted, or it has been cut down. The rest of the wood still stands."
+      homeLabel: "Back to the heart tree"
+    layout:
+      position: beforeBody
+      priority: 1
   # Footer: the stock "Created with Quartz v5.0.0 © 2026" in the site's voice,
   # and without the copyright — Quartz is MIT-licensed and the notice the licence
   # asks for lives in LICENSE.txt, so the credit here is courtesy. That courtesy
@@ -410,9 +450,23 @@ layout:
       direction: row
       gap: 0.5rem
   byPageType:
+    # The page that is not there. Quartz owns this page type — the loader
+    # appends it itself, so there is no entry above to disable and no way to
+    # replace it the way weirwood-chrome replaced folder-page. What CAN be
+    # replaced is its frame, and `notfound` (./plugins/weirwood-notfound) is
+    # FullWidthFrame with the page body left out: Quartz's own "404 / Either
+    # this page is private or doesn't exist" never renders, and the bar, the
+    # heart tree and the closing bar are the whole page.
+    #
+    # beforeBody is therefore NOT cleared here — it is where the tree lives.
+    # Both title components are excluded instead, for the reason every other
+    # page type excludes them: the block below draws its own.
     "404":
+      template: notfound
+      exclude:
+        - "@quartz-community/article-title"
+        - weirwood-article
       positions:
-        beforeBody: []
         left: []
         right: []
     # Every entry is a single-column broadsheet: `template` sets the frame for

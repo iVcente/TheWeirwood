@@ -1,0 +1,68 @@
+{
+  "name": "weirwood-notfound",
+  "version": "1.0.0",
+  "description": "The page that is not there: a heart tree with one branch missing.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    },
+    "./components": {
+      "import": "./components/index.js"
+    },
+    "./frames": {
+      "import": "./frames.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./index.js",
+  "sideEffects": false,
+  "peerDependencies": {
+    "preact": "^10.0.0"
+  },
+  "quartz": {
+    "name": "weirwood-notfound",
+    "displayName": "Weirwood Not Found",
+    "description": "The 404 hero, and the frame that lets it be the whole page.",
+    "category": [
+      "pageType",
+      "component"
+    ],
+    "version": "1.0.0",
+    "quartzVersion": ">=5.0.0",
+    "dependencies": [],
+    "defaultOrder": 50,
+    "defaultEnabled": true,
+    "defaultOptions": {},
+    "components": {
+      "WeirwoodLost": {
+        "displayName": "Weirwood Not Found",
+        "description": "The broken tree, the notice and the way home. Nothing off /404."
+      }
+    },
+    "frames": {
+      "NotFoundFrame": {
+        "exportName": "NotFoundFrame"
+      }
+    },
+    "optionSchema": {
+      "kicker": {
+        "type": "string"
+      },
+      "title": {
+        "type": "string"
+      },
+      "body": {
+        "type": "string"
+      },
+      "homeLabel": {
+        "type": "string"
+      },
+      "tabTitle": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -131,10 +131,10 @@ export const landingStyles = `
   text-wrap: pretty;
 }
 
-/* Both CTAs are filled red and carry equal weight — there is no secondary
-   variant, and they match in width too: 1fr tracks in a shrink-to-fit grid all
-   take the width of the widest button, so the pair reads as one object rather
-   than as two buttons sized by their word lengths. */
+/* Both CTAs carry equal weight — there is no secondary variant — and they match
+   in width too: 1fr tracks in a shrink-to-fit grid all take the width of the
+   widest button, so the pair reads as one object rather than as two buttons
+   sized by their word lengths. */
 .ww-actions {
   display: inline-grid;
   grid-auto-flow: column;
@@ -142,6 +142,24 @@ export const landingStyles = `
   gap: 12px;
 }
 
+/* Outlined rather than filled: the dark inset ground the panels and tiles use,
+   drawn round in the palette's own red. Two solid red slabs were the brightest
+   thing on the front door and took the eye off the tree they stand under; the
+   heartglow and the artwork are the red here now, and the fill arrives on
+   hover.
+
+   The border is --secondary and NOT the dimmer --ww-glow-edge that a greensight
+   panel is edged with. That was the first attempt, and it camouflaged: at
+   #4a231d on a #241813 ground, over a hero this dark, the button had no edge
+   the eye could find and read as part of the background. A quiet button still
+   has to be findable, and on an almost-black page the border is the only part
+   of it that can do that.
+
+   The colours and the fill-on-hover are weirwood-notfound's .ww-lost-cta
+   exactly. The type and the padding are NOT: this pair is the front door's one
+   gesture and holds the bottom of a full-screen hero, so it keeps the
+   12px/0.14em and the 13px 30px it was drawn at. The 404's button is the same
+   treatment at a footnote's size. */
 .ww-cta {
   font-family: var(--codeFont);
   font-size: 12px;
@@ -152,7 +170,7 @@ export const landingStyles = `
   text-transform: uppercase;
   text-align: center;
   color: #f3e8d2;
-  background: var(--secondary);
+  background: var(--highlight);
   border: 1px solid var(--secondary);
   padding: 13px 30px;
   border-radius: 4px;
@@ -163,9 +181,11 @@ export const landingStyles = `
     border-color 0.2s ease;
 }
 
+/* Hover is where the red arrives, which is what keeps a quiet button from
+   reading as a disabled one. */
 .ww-cta:hover {
-  background: var(--tertiary);
-  border-color: var(--tertiary);
+  background: var(--secondary);
+  border-color: var(--secondary);
   color: #f3e8d2;
 }
 
@@ -242,28 +262,40 @@ a.ww-count-cell:hover .ww-count-label {
 }
 
 /* --- the way across ----------------------------------------------------- */
-/* One line under the sections, in the ledger voice the count values use rather
-   than the headline voice of the labels above it. It is the only route to /tags
-   from the front door, and it is deliberately quiet: the sections are the
-   archive's shape, and a tag is a cut across them. */
+/* One line under the sections, and the only route to /tags from the front door.
+
+   The WORDS are set exactly as the two CTAs' are -- same 12px, same 0.14em,
+   same parchment -- so the three ways off this page speak in one voice. What
+   ranks it below them is everything else: no border, no inset ground, the full
+   width of the row rather than a button's width. The sections are the archive's
+   shape and a tag is a cut across them, so this reads as the eleventh way in
+   rather than as a third button; a third bordered slab would also stack into a
+   menu of three on a phone, out of a landing meant to be a single screen. */
 .ww-threads {
   display: block;
   padding: 14px 20px 16px;
   border-top: 1px solid var(--ww-divider);
   background-color: var(--light);
   font-family: var(--codeFont);
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: 12px;
+  /* base.scss weights every anchor semibold, and this is an anchor. Same
+     override, and the same reason, as the one on .ww-cta above: without it the
+     one way off this page that happens to be a link is set heavier than the two
+     beside it. It did not show while this line was 10px and muted. */
+  font-weight: 400;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   text-align: center;
-  color: #8a7b67;
+  color: #f3e8d2;
   text-decoration: none;
   transition: background-color 0.2s ease;
 }
 
+/* The ground lifts on hover and the word does not, which is how the CTAs above
+   behave too. */
 .ww-threads:hover {
   background-color: var(--highlight);
-  color: var(--dark);
+  color: #f3e8d2;
 }
 
 /* The graph the CTA opens. Off-screen rather than display:none so d3 still has

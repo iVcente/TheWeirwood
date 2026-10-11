@@ -534,8 +534,26 @@ code {
   .ww-roots,
   .ww-entries,
   .ww-tag-groups,
-  .ww-chips {
+  .ww-chips,
+  // The 404's own block. Nothing on the site links to it, but a popover does
+  // not check the response status — so hovering a link to a page that has been
+  // moved or deleted fetches 404.html and stacks this card instead. Keep the
+  // sentence, which says exactly what the reader needs to know, and drop the
+  // 150px tree and the button.
+  .ww-lost-tree,
+  .ww-lost-rule,
+  .ww-lost-cta {
     display: none;
+  }
+
+  .ww-lost {
+    padding: 0 0 8px;
+    background-image: none;
+    text-align: left;
+  }
+
+  .ww-lost-title {
+    font-size: 22px;
   }
 
   .ww-band-inner {
