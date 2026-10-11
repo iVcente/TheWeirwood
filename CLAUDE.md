@@ -377,6 +377,65 @@ from the page with no error. Write property names in comments bare, and check
   a frames-only plugin must either declare `category: "component"` and ship a component
   (what `weirwood-notfound` does) or be a real transformer/emitter/pageType.
 
+### Upgrading Quartz
+
+Quartz is **vendored** into this repo, so `quartz/` is editable and an upgrade overwrites
+it. Every failure below is silent: the build succeeds, the site renders, and one thing is
+quietly wrong on a page nobody opens that week. Work the list.
+
+**Before.** `grep -rn "LOCAL MODIFICATION" quartz/` and save a diff per hit — that marker
+is the whole inventory of edited core, and it must stay that way. As of 2026-10-11 there
+is exactly one file: `Head.tsx` (`viewport-fit=cover`, and the landing-only
+`theme-color`). Note the installed version of `@quartz-community/graph` too; see below.
+
+**After.** Re-apply the local modifications, re-run the grep, then check the five
+contracts this site's plugins hang off. None of them is public API, and none of them
+errors when it moves:
+
+1. **The `notfound` frame's grid.** `base.scss` hangs the single-column layout off
+   `.page[data-frame="full-width"]`, so a frame under any other name misses it;
+   `NotFoundFrame.css` in `plugins/weirwood-notfound/frames.js` restates that grid for
+   its own name. If `base.scss`'s grid areas or frame names change, update that block —
+   **longhands only**, because `custom.scss` sets `grid-template-rows` on every
+   `[data-frame]` and the `grid-template` shorthand would silently reset it.
+2. **The 404's tab title.** It rides on `treeTransforms` being collected from *every*
+   page type and run against the live `componentData` immediately before `<Head>`. If
+   `public/404.html` says `Not Found` instead of `No such root`, that contract moved and
+   the page type in `plugins/weirwood-notfound/index.js` needs rethinking.
+3. **The stock 404 body.** The frame drops it; `weirwood-notfound` ports the one useful
+   thing out of it, the case-insensitive redirect that saves `/Characters`. If Quartz
+   changes that script, re-port it — and if Quartz ever makes `NotFoundPageType`
+   disableable, retire the frame trick for a real page type.
+4. **Duplicate slugs are not an error.** The dispatcher emits and the last write wins,
+   with no warning. If an upgrade re-enables stock folder/tag generation or adds a
+   generator of its own, a section index, a tag page or the 404 can be overwritten with
+   stock output. Open one of each after the build.
+5. **The graph's hardcoded `tags/`.** `@quartz-community/graph` builds every tag node's
+   id as `"tags/" + tag`, and the greensight works because that id is byte-identical to
+   the real page's slug. It is the reason the URL is still `/tags/` under a page that
+   says THREADS. After upgrading that plugin, confirm the prefix survived
+   (`grep -c 'tags/' node_modules/@quartz-community/graph/dist/index.js`) and click a
+   tag node in the overlay.
+
+Everything in **Quartz v5 gotchas** above is also upgrade surface — in particular that
+`note-properties` is the frontmatter parser, that fonts are declared twice, that the
+favicon path is hardcoded, that `exclude:` spells npm and local plugins differently, and
+that component CSS ships inside `@layer quartz-base` while `custom.scss` does not, which
+is the only reason `custom.scss` always wins.
+
+**The pass.**
+
+```bash
+npx quartz build
+grep -rn "LOCAL MODIFICATION" quartz/              # one file: Head.tsx
+grep -o "<title>[^<]*" public/404.html             # No such root
+grep -rnP '[^\x00-\x7F]' --include='*.md' content  # empty: SmartyPants still off
+```
+
+Then by eye, on `npx quartz build --serve`: the front door, a section index, an entry, a
+link popover, `/tags`, one tag page, a made-up URL for the 404, and the greensight
+overlay from each of those. That is every page type and every borrowed contract.
+
 ### Custom components
 
 Components must come from a plugin — Quartz v5's component registry is populated only by
